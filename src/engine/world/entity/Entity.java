@@ -1,9 +1,12 @@
 package engine.world.entity;
 
+import engine.visuals.Sprite;
 import engine.visuals.viewport.Viewport;
 
 public class Entity {
-	private float x, y;
+	public float x, y;
+	public int color;
+	protected Sprite sprite;
 	
 	public Entity() {
 	}

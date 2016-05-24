@@ -49,12 +49,20 @@ public class Viewport extends Canvas {
 	public void render(Entity entity) {
 		//Render any entity in here
 		//Entities contain sprite object
-	}
-	
-	public void renderRect() {
+		int xp = (int) Math.round(entity.x);
+		int yp = (int) entity.y;
+		if(xp < 0 || yp < 0 || xp >= w || yp >= h) return;
 		for(int y = 0; y < 8; ++y) {
 			for(int x = 0; x < 8; ++x) {
-				setPixel(x, y, 0xff00ff00);
+				setPixel(x + xp, y + yp, entity.color);
+			}
+		}
+	}
+	
+	public void renderRect(int xp, int yp) {
+		for(int y = 0; y < 8; ++y) {
+			for(int x = 0; x < 8; ++x) {
+				setPixel(x + xp, y + yp, 0xff00ff00);
 			}
 		}
 	}
@@ -70,7 +78,7 @@ public class Viewport extends Canvas {
 	}
 	
 	public void swap() {
-		bs = getBufferStrategy();
+		BufferStrategy bs = getBufferStrategy();
 		if(bs == null) {
 			createBufferStrategy(BUFFER_DEPTH);
 			return;
@@ -78,8 +86,8 @@ public class Viewport extends Canvas {
 		
 		Graphics g = bs.getDrawGraphics();
 		g.drawImage(raster, 0, 0, w * scale, h * scale, null);
-		g.dispose();
 		bs.show();
+		g.dispose();
 	}
 	
 	public void clear() {

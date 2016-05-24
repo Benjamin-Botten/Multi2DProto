@@ -7,15 +7,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 public class SimpleInput extends Input implements MouseListener, KeyListener {
-
-	public int mx, my;
-	public boolean[] pressed = new boolean[Short.MAX_VALUE];
-	public boolean wasPressed, ml, mr;
 	
 	public SimpleInput(Canvas canvas) {
-		canvas.addKeyListener(this);
-		canvas.addMouseListener(this);
-		canvas.addKeyListener(this);
+		super(canvas);
 	}
 	
 	@Override
@@ -25,12 +19,13 @@ public class SimpleInput extends Input implements MouseListener, KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		pressed[e.getKeyCode()] = true;
+		keys[e.getKeyCode()] = true;
+		//System.out.println("Pressing key: " + e.getKeyCode());
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		pressed[e.getKeyCode()] = false;
+		keys[e.getKeyCode()] = false;
 	}
 
 	@Override
