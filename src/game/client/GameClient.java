@@ -23,6 +23,7 @@ public class GameClient {
 	private DatagramSocket socketBroadcast;
 	private DatagramSocket socket;
 	private DatagramPacket packet;
+	private DatagramPacket packetBroadcast;
 	private Player player;
 	private World world;
 	
@@ -34,7 +35,6 @@ public class GameClient {
 			socket = new DatagramSocket();
 			ip = InetAddress.getByName("bejobo.servegame.com");
 			group = InetAddress.getByName("bejobo.servegame.com");
-			socketBroadcast = new DatagramSocket();
 		} catch (SocketException e) {
 			e.printStackTrace();
 		} catch (UnknownHostException e) {
@@ -78,22 +78,22 @@ public class GameClient {
 	public void sendUpdatePosition() {
 		if(player.isConnected()) {
 			try {
-				String strPosition = player.name + "," + (int)player.x + "," + (int)player.y;
+				String strPosition = player.name + "," + (int) player.x + "," + (int) player.y;
 				String formattedStrLength = GameServer.formatLength(strPosition.length());
 				byte[] buf = (GameServer.M2DP_DATA_UPDATE_POSITION + formattedStrLength + strPosition).getBytes();
 				packet = new DatagramPacket(buf, buf.length, ip, GameServer.PORT);
 				socket.send(packet);
 				
-				buf = new byte[256];
-				packet = new DatagramPacket(buf, buf.length);
-				socket.receive(packet);
-				
-				String reply = new String(packet.getData());
-				if(reply.contains(GameServer.M2DP_REPLY_UPDATE_POSITION_ACCEPT)) {
+//				buf = new byte[256];
+//				packet = new DatagramPacket(buf, buf.length);
+//				socket.receive(packet);
+//				
+//				String reply = new String(packet.getData());
+//				if(reply.contains(GameServer.M2DP_REPLY_UPDATE_POSITION_ACCEPT)) {
 //					System.out.println("Got update position accept from server");
-				} else {
-					System.out.println("Attempted to update position, got reply: " + reply);
-				}
+//				} else {
+//					System.out.println("Attempted to update position, got reply: " + reply);
+//				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -106,18 +106,18 @@ public class GameClient {
 			public void run() {
 				while(true) {
 					try {
-						byte[] buf = "1".getBytes();
-						DatagramPacket packet = new DatagramPacket(buf, buf.length, ip, GameServer.PORT_GROUP);
-						socketBroadcast.send(packet);
-						
 						System.out.println("Listening for broadcast packet!");
+						byte[] buf = new byte[256];
+						packetBroadcast = new DatagramPacket(buf, buf.length);
+						socket.receive(packetBroadcast);
 						
-						buf = new byte[256];
-						socketBroadcast.receive(packet);
+//						if(packetBroadcast.getPort() == GameServer.PORT_GROUP) {
+//							System.out.println("Recv from broadcast port on gameserver");
+//						}
+						System.out.println("Recv from: " + packetBroadcast.getAddress().toString() + ": " + packetBroadcast.getPort());
 						
-						String msg = new String(packet.getData());
-						
-						System.out.println("Received a broadcast packet with message: " + msg);
+						String msg = new String(packetBroadcast.getData());
+						System.out.println("RECEIVED A BROADCAST PACKET WITH MESSAGE: " + msg);
 						
 						int dataId = Integer.parseInt(msg.substring(GameServer.M2DP_DATA_ID_POS_START, GameServer.M2DP_DATA_ID_POS_END));
 						int dataLength = Integer.parseInt(msg.substring(GameServer.M2DP_DATA_MSG_LENGTH_POS_START, GameServer.M2DP_DATA_MSG_LENGTH_POS_END));
@@ -152,8 +152,11 @@ public class GameClient {
 									break;
 								}
 							}
-							if(player.name.equalsIgnoreCase(name)) break;
-							world.updatePlayer(new Player(null, Game.assignPlayerColor(), name));
+							//if(player.name.equalsIgnoreCase(name)) break;
+							Player player = new Player(null, 0xffffffff, name);
+							player.x = x;
+							player.y = y;
+							world.updatePlayer(player);
 							break;
 						}
 						
@@ -165,6 +168,69 @@ public class GameClient {
 			}
 		}).start();
 	}
+	
+	public void listenUpdatePositions() {
+		try {
+			System.out.println("Listening for broadcast packet!");
+			byte[] buf = new byte[256];
+			packetBroadcast = new DatagramPacket(buf, buf.length);
+			socket.receive(packetBroadcast);
+			
+//			if(packetBroadcast.getPort() == GameServer.PORT_GROUP) {
+//				System.out.println("Recv from broadcast port on gameserver");
+//			}
+			System.out.println("Recv from: " + packetBroadcast.getAddress().toString() + ": " + packetBroadcast.getPort());
+			
+			if(packetBroadcast.getPort() != GameServer.PORT_GROUP) return;
+			String msg = new String(packetBroadcast.getData());
+			
+			System.out.println("RECEIVED A BROADCAST PACKET WITH MESSAGE: " + msg);
+			
+			
+			int dataId = Integer.parseInt(msg.substring(GameServer.M2DP_DATA_ID_POS_START, GameServer.M2DP_DATA_ID_POS_END));
+			int dataLength = Integer.parseInt(msg.substring(GameServer.M2DP_DATA_MSG_LENGTH_POS_START, GameServer.M2DP_DATA_MSG_LENGTH_POS_END));
+			int startIndex = GameServer.M2DP_DATA_MSG_LENGTH_POS_END;
+			int endIndex = startIndex + dataLength;
+			String data = msg.substring(startIndex, endIndex);
+			
+			switch(dataId) {
+			case GameServer.M2DP_UPDATE_POSITION:
+				int tokens = 0;
+				int lastTokenIndex = 0;
+				String name = "";
+				int x = 0, y = 0;
+				for(int i = 0; i < data.length(); ++i) {
+					if(tokens == 0) {
+						if(Character.compare(data.charAt(i), ',') == 0) {
+							name = data.substring(0, i);
+							lastTokenIndex = i + 1;
+							tokens++;
+						}
+					}
+					else if(tokens == 1) {
+						if(Character.compare(data.charAt(i), ',') == 0) {
+							x = Integer.parseInt(data.substring(lastTokenIndex, i));
+							lastTokenIndex = i + 1;
+							tokens++;
+						}
+					}
+					else if(tokens == 2) {
+						y = Integer.parseInt(data.substring(lastTokenIndex, dataLength));
+						tokens++;
+						break;
+					}
+				}
+				if(player.name.equalsIgnoreCase(name)) break;
+				world.updatePlayer(new Player(null, Game.assignPlayerColor(), name));
+				break;
+			}
+			
+			System.out.println("In listen thread, message from server: " + msg);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 //	public static void main(String[] args) {
 //		new GameClient(null).start();
 //	}

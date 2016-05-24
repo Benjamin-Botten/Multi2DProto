@@ -28,7 +28,6 @@ public class Game implements Runnable {
 	private GameClient gameClient;
 	
 	public Game() {
-		System.out.println("Parsing integer string \"0001\": " + Integer.parseInt(new String("0001".getBytes())));
 		viewport = new Viewport(WIDTH, HEIGHT, SCALE, TITLE);
 		input = new SimpleInput(viewport);
 		player = new Player(input, assignPlayerColor(), assignPlayerName());
@@ -90,34 +89,28 @@ public class Game implements Runnable {
 			}
 			
 			if(System.currentTimeMillis() - startTime >= 1000) {
-				System.out.println("FPS: " + frames + ", Ticks: " + ticks);
-				System.out.println("Player position (" + player.x + ", " + player.y + ")");
+				//System.out.println("FPS: " + frames + ", Ticks: " + ticks);
+				//System.out.println("Player position (" + player.x + ", " + player.y + ")");
 				frames = 0;
 				ticks = 0;
 				untickedTime = 0;
 				startTime = System.currentTimeMillis();
-				
-				gameClient.sendUpdatePosition();
 			} else {
 				frames++;
 			}
 		}
 	}
 	
-	private int x = 0, y;
 	public void render() {
 		viewport.clear();
 		world.render(viewport);
-//		x += 1;
-//		viewport.renderRect(x, y);
-		player.x += 0.01f;
-//		player.render(viewport);
 		viewport.swap();
 	}
 	
 	public void tick() {
 		ticks++;
 		player.tick();
+		gameClient.sendUpdatePosition();
 	}
 	
 	public static void main(String[] args) {
