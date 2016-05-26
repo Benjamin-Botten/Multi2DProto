@@ -8,7 +8,11 @@ import java.awt.image.DataBufferInt;
 
 import javax.swing.JFrame;
 
+import engine.visuals.Sprite;
+import engine.visuals.SpriteSheet;
 import engine.world.entity.Entity;
+import engine.world.entity.Player;
+import engine.world.tile.Tile;
 import game.Game;
 
 public class Viewport extends Canvas {
@@ -22,6 +26,7 @@ public class Viewport extends Canvas {
 	private String title = Game.TITLE;
 	private BufferedImage raster;
 	private BufferStrategy bs;
+	private int camX, camY;
 	
 	public Viewport(int w, int h, int scale, String title) {
 		this.w = w;
@@ -46,15 +51,49 @@ public class Viewport extends Canvas {
         frame.setLocationRelativeTo(null);
 	}
 	
-	public void render(Entity entity) {
-		//Render any entity in here
-		//Entities contain sprite object
-		int xp = (int) Math.round(entity.x);
-		int yp = (int) entity.y;
+	public void render(Tile tile, int xp, int yp) {
+		int textureX = (tile.id % (256 / 8)) * 8; //bitshift 'ere
+		int textureY = (tile.id / (256 / 8)) * 8; //bitshift 'ere
+		int sheetWidth = SpriteSheet.tiles.w;
+		
 		if(xp < 0 || yp < 0 || xp >= w || yp >= h) return;
 		for(int y = 0; y < 8; ++y) {
 			for(int x = 0; x < 8; ++x) {
-				setPixel(x + xp, y + yp, entity.color);
+				pixels[(x + xp) + (y + yp) * w] = SpriteSheet.tiles.pixels[(x + textureX) + (y + textureY) * sheetWidth];
+			}
+		}
+	}
+	
+	public void render(Sprite sprite, int xp, int yp) {
+		int textureX = sprite.getCurrentColumnIndex() * (256 / 16); //bitshift 'ere
+		int textureY = sprite.getCurrentRowIndex() * (256 / 16); //bitshift 'ere
+		int sheetWidth = sprite.getSpriteSheet().w;
+		
+		for(int y = 0; y < 16; ++y) {
+			if(y < 0 || y + yp >= h) continue;
+			for(int x = 0; x < 16; ++x) {
+				if(x < 0 || x + xp >= w) continue;
+				int spriteColor = sprite.getSpriteSheet().pixels[(x + textureX) + (y + textureY) * sheetWidth];
+				if(!(spriteColor == SpriteSheet.COLORKEY))
+					pixels[(x + xp) + (y + yp) * w] = spriteColor;
+			}
+		}
+	}
+	
+	public void render(Entity entity) {
+		//Render any entity in here
+		//Entities contain sprite object
+		if(entity instanceof Player) {
+			Player player = (Player) entity;
+			player.getSprite().render(this, (int)player.x, (int)player.y);
+		} else {
+			int xp = (int) entity.x;
+			int yp = (int) entity.y;
+			if(xp < 0 || yp < 0 || xp >= w || yp >= h) return;
+			for(int y = 0; y < 8; ++y) {
+				for(int x = 0; x < 8; ++x) {
+					setPixel(x + xp, y + yp, 0xff00ff00);
+				}
 			}
 		}
 	}
@@ -65,6 +104,11 @@ public class Viewport extends Canvas {
 				setPixel(x + xp, y + yp, 0xff00ff00);
 			}
 		}
+	}
+	
+	public void setCamera(int camX, int camY) {
+		this.camX = camX;
+		this.camY = camY;
 	}
 	
 	public void setPixel(int x, int y, int color) {

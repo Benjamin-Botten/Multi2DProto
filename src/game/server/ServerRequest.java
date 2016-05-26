@@ -7,6 +7,7 @@ public class ServerRequest extends Thread {
 	public ServerRequest(DatagramPacket packet) {
 		
 	}
+	
 	@Override
 	public void run() {
 		

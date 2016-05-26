@@ -7,12 +7,13 @@ import engine.io.SimpleInput;
 import engine.visuals.viewport.Viewport;
 import engine.world.World;
 import engine.world.entity.Player;
+import engine.world.entity.PlayerOnline;
 import game.client.GameClient;
 
 public class Game implements Runnable {
 	public static final int WIDTH = 320;
 	public static final int HEIGHT = 240;
-	public static final int SCALE = 2;
+	public static final int SCALE = 3;
 	public static final String TITLE = "Experiment";
 	private boolean running = false;
 	private int ticks = 0;
@@ -30,9 +31,9 @@ public class Game implements Runnable {
 	public Game() {
 		viewport = new Viewport(WIDTH, HEIGHT, SCALE, TITLE);
 		input = new SimpleInput(viewport);
-		player = new Player(input, assignPlayerColor(), assignPlayerName());
+		player = new Player(input);
 		world = new World(player);
-		gameClient = new GameClient(player, world);
+		gameClient = new GameClient(new PlayerOnline(assignPlayerName()), world);
 	}
 	
 	public static int assignPlayerColor() {
@@ -49,7 +50,7 @@ public class Game implements Runnable {
 	
 	public void init() {
 		gameClient.sendJoin();
-		gameClient.listen();
+		gameClient.listenUpdatePosition();
 	}
 	
 	public void start() {
@@ -108,9 +109,10 @@ public class Game implements Runnable {
 	}
 	
 	public void tick() {
-		ticks++;
-		player.tick();
+		world.tick();
 		gameClient.sendUpdatePosition();
+		
+		ticks++;
 	}
 	
 	public static void main(String[] args) {

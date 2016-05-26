@@ -8,11 +8,11 @@ import java.net.InetAddress;
 import engine.world.entity.PlayerOnline;
 import game.server.GameServer;
 
-public class M2DPacketJoin extends M2DPacket {
-	
-	private PlayerOnline player;
+public class M2DPacketDisconnect extends M2DPacket {
 
-	public M2DPacketJoin(InetAddress ip, int port, PlayerOnline player) {
+	private PlayerOnline player;
+	
+	public M2DPacketDisconnect(InetAddress ip, int port, PlayerOnline player) {
 		super(ip, port);
 		
 		this.player = player;
@@ -22,7 +22,7 @@ public class M2DPacketJoin extends M2DPacket {
 		try {
 			String data = player.getUsername();
 			String dataLength = GameServer.formatLength(data.length());
-			String msg = (GameServer.M2DP_DATA_JOIN + dataLength + data);
+			String msg = (GameServer.M2DP_DATA_DISCONNECT + dataLength + data);
 			byte[] buf = msg.getBytes();
 			packet = new DatagramPacket(buf, buf.length, ip, port);
 			socket.send(packet);
@@ -42,5 +42,5 @@ public class M2DPacketJoin extends M2DPacket {
 			e.printStackTrace();
 		}
 	}
-	
+
 }

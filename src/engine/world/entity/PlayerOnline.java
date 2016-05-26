@@ -2,20 +2,30 @@ package engine.world.entity;
 
 import java.net.InetAddress;
 
-public class PlayerOnline {
+/**
+ * The online abstraction of player
+ * @author robot
+ *
+ */
+public class PlayerOnline extends Player {
 
-	private Player player;
 	private InetAddress ip;
 	private int port;
+	private boolean connected = false;
 	
-	public PlayerOnline(Player player, InetAddress ip, int port) {
-		this.player = player;
-		this.ip = ip;
-		this.port = port;
+	public final String username;
+	
+	
+	public PlayerOnline(String username) {
+		super(null);
+		
+		this.username = username;
 	}
 	
-	public Player getPlayer() {
-		return player;
+	public PlayerOnline(String username, InetAddress ip, int port) {
+		this(username);
+		this.ip = ip;
+		this.port = port;
 	}
 	
 	public int getPort() {
@@ -24,5 +34,17 @@ public class PlayerOnline {
 	
 	public InetAddress getAddress() {
 		return ip;
+	}
+	
+	public String getUsername() {
+		return username;
+	}
+
+	public boolean isConnected() {
+		return connected;
+	}
+	
+	public void setConnected(boolean connected) {
+		this.connected = connected;
 	}
 }

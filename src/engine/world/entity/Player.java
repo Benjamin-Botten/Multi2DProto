@@ -1,48 +1,51 @@
 package engine.world.entity;
 
-import java.net.InetAddress;
-
 import com.sun.glass.events.KeyEvent;
 
 import engine.io.Input;
+import engine.visuals.Sprite;
+import engine.visuals.SpriteSheet;
 
 public class Player extends Entity {
 	
 	private Input input;
 	
-	private boolean connected = false;
-	public final String name;
-	
-	public Player(Input input, int color, String name) {
+	public Player(Input input) {
 		super();
 		
 		this.input = input;
-		this.color = color;
-		this.name = name;
-		
-		
+		sprite = new Sprite(SpriteSheet.entities, 0, 2, 0, 0);
 	}
 	
 	public void tick() {
+		sprite.tick();
+		
 		if(input.keys[KeyEvent.VK_A]) {
+			directionMovement = DIR_LEFT;
+			directionFacing = DIR_LEFT;
 			x -= 1;
 		}
 		if(input.keys[KeyEvent.VK_D]) {
+			directionMovement = DIR_RIGHT;
+			directionFacing = DIR_RIGHT;
 			x += 1;
 		}
 		if(input.keys[KeyEvent.VK_W]) {
+			directionMovement = DIR_UP;
+			directionFacing = DIR_UP;
 			y -= 1;
 		}
 		if(input.keys[KeyEvent.VK_S]) {
+			directionMovement = DIR_DOWN;
+			directionFacing = DIR_DOWN;
 			y += 1;
 		}
+		
+		sprite.setDirectionMovement(directionMovement);
+		sprite.setDirectionFacing(directionFacing);
 	}
 	
-	public void setConnected(boolean connected) {
-		this.connected = connected;
-	}
-	
-	public boolean isConnected() {
-		return connected;
+	public boolean solid() {
+		return collidable;
 	}
 }
