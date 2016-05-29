@@ -145,4 +145,8 @@ public class Viewport extends Canvas {
 			pixels[i] = color;
 		}
 	}
+	
+	public void setTitle(String title) {
+		frame.setTitle(title);
+	}
 }

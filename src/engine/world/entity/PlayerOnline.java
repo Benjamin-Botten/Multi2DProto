@@ -47,4 +47,12 @@ public class PlayerOnline extends Player {
 	public void setConnected(boolean connected) {
 		this.connected = connected;
 	}
+
+	public void setAddress(InetAddress address) {
+		this.ip = address;
+	}
+	
+	public void setPort(int port) {
+		this.port = port;
+	}
 }

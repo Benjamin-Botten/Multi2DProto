@@ -32,6 +32,9 @@ public class GameClient {
 	private InetAddress ip; // ip_dst
 
 	public GameClient(PlayerOnline player, World world) {
+		if(player == null) {
+			throw new IllegalArgumentException("Attempted to create game client with a null player");
+		}
 		try {
 			socket = new DatagramSocket();
 			ip = InetAddress.getByName("bejobo.servegame.com");
@@ -52,6 +55,9 @@ public class GameClient {
 						player);
 				join.send(socket);
 				join.recv(socket);
+				DatagramPacket packet = join.getPacket();
+				player.setAddress(packet.getAddress());
+				player.setPort(packet.getPort());
 				if (join.getReply().contains(GameServer.M2DP_REPLY_JOIN_ACCEPT)) {
 					System.out.println("Login attempt: " + join.getReply());
 					player.setConnected(true);
@@ -66,7 +72,8 @@ public class GameClient {
 	}
 
 	public void sendUpdatePosition() {
-		if (player.isConnected()) {
+		if (player != null) {
+			if(player.isConnected()) {
 			try {
 				player.x = world.getPlayer().x;
 				player.y = world.getPlayer().y;
@@ -78,18 +85,32 @@ public class GameClient {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			}
 		}
 	}
 
 	public void sendUpdateSprite() {
-		if (player.isConnected()) {
-			player.setSprite(world.getPlayer().getSprite());
-			M2DPacketUpdateSprite updateSprite = new M2DPacketUpdateSprite(ip, GameServer.PORT);
-			updateSprite.send(player, socket);
+		if (player != null) {
+			if(player.isConnected()) {
+			try {
+				player.setSprite(world.getPlayer().getSprite());
+				String strSprite = player.getUsername() + "," + player.getSprite().getCurrentRowIndex() + "," + player.getSprite().getCurrentColumnIndex() + 
+						"," + player.getSprite().getDirectionMovement() + "," + player.getSprite().getCurrentFrame();
+				String formattedStrLength = GameServer.formatLength(strSprite.length());
+				byte[] buf = (GameServer.M2DP_DATA_UPDATE_SPRITE + formattedStrLength + strSprite).getBytes();
+				packet = new DatagramPacket(buf, buf.length, ip, GameServer.PORT);
+				socket.send(packet);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			}
+//			player.setSprite(world.getPlayer().getSprite());
+//			M2DPacketUpdateSprite updateSprite = new M2DPacketUpdateSprite(ip, GameServer.PORT);
+//			updateSprite.send(player, socket);
 		}
 	}
 
-	public synchronized void listenUpdateSprite() {
+	public synchronized void listen() {
 		if (!player.isConnected())
 			throw new IllegalArgumentException("Player attempting to listen while not connected");
 		
@@ -97,8 +118,7 @@ public class GameClient {
 			public void run() {
 				while (true) {
 					try {
-						// System.out.println("Listening for broadcast
-						// packet!");
+						System.out.println("Listening for game-update packet!");
 						byte[] buf = new byte[256];
 						packetBroadcast = new DatagramPacket(buf, buf.length);
 						socket.receive(packetBroadcast);
@@ -113,8 +133,7 @@ public class GameClient {
 						// packetBroadcast.getPort());
 
 						String msg = new String(packetBroadcast.getData());
-						// System.out.println("RECEIVED A BROADCAST PACKET WITH
-						// MESSAGE: " + msg);
+						System.out.println("RECEIVED A BROADCAST PACKET WITH MESSAGE: " + msg);
 
 						int dataId = Integer.parseInt(
 								msg.substring(GameServer.M2DP_DATA_ID_POS_START, GameServer.M2DP_DATA_ID_POS_END));
@@ -144,62 +163,38 @@ public class GameClient {
 										tokens++;
 									}
 								} else if (tokens == 2) {
-									columnIndex = Integer.parseInt(data.substring(lastTokenIndex, i));
-									lastTokenIndex = i + 1;
-									tokens++;
-									break;
+									if (Character.compare(data.charAt(i), ',') == 0) {
+										columnIndex = Integer.parseInt(data.substring(lastTokenIndex, i));
+										lastTokenIndex = i + 1;
+										tokens++;
+									}
 								} else if (tokens == 3) {
-									directionMovement = Integer.parseInt(data.substring(lastTokenIndex, i));
-									lastTokenIndex = i + 1;
-									tokens++;
+									if (Character.compare(data.charAt(i), ',') == 0) {
+										directionMovement = Integer.parseInt(data.substring(lastTokenIndex, i));
+										lastTokenIndex = i + 1;
+										tokens++;
+									}
 								} else if (tokens == 4) {
 									currentFrame = Integer.parseInt(data.substring(lastTokenIndex, dataLength));
 									tokens++;
+									break;
 								}
 							}
 							player = world.getPlayerOnlineByName(name);
-							player.getSprite().setRowIndex(rowIndex);
-							player.getSprite().setColumnIndex(columnIndex);
-							player.getSprite().setDirectionMovement(directionMovement);
-							player.getSprite().setCurrentFrame(currentFrame);
+							if(player != null) {
+								player.getSprite().setRowIndex(rowIndex);
+								player.getSprite().setColumnIndex(columnIndex);
+								player.getSprite().setDirectionMovement(directionMovement);
+								player.getSprite().setCurrentFrame(currentFrame);
+							} else {
+								world.addEntity(new PlayerOnline(name, packetBroadcast.getAddress(), packetBroadcast.getPort()));
+							}
 							break;
-						}
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}).start();
-	}
-
-	public synchronized void listenUpdatePosition() {
-		if (!player.isConnected())
-			throw new IllegalArgumentException("Player attempting to listen while not connected");
-		new Thread(new Runnable() {
-			public void run() {
-				while (true) {
-					try {
-						byte[] buf = new byte[256];
-						packetBroadcast = new DatagramPacket(buf, buf.length);
-						socket.receive(packetBroadcast);
-
-						String msg = new String(packetBroadcast.getData());
-						// System.out.println("RECEIVED A BROADCAST PACKET WITH
-						// MESSAGE: " + msg);
-
-						int dataId = Integer.parseInt(
-								msg.substring(GameServer.M2DP_DATA_ID_POS_START, GameServer.M2DP_DATA_ID_POS_END));
-						int dataLength = Integer.parseInt(msg.substring(GameServer.M2DP_DATA_MSG_LENGTH_POS_START,
-								GameServer.M2DP_DATA_MSG_LENGTH_POS_END));
-						int startIndex = GameServer.M2DP_DATA_MSG_LENGTH_POS_END;
-						int endIndex = startIndex + dataLength;
-						String data = msg.substring(startIndex, endIndex);
-
-						switch (dataId) {
+							
 						case GameServer.M2DP_UPDATE_POSITION:
-							int tokens = 0;
-							int lastTokenIndex = 0;
-							String name = "";
+							tokens = 0;
+							lastTokenIndex = 0;
+							name = "";
 							int x = 0, y = 0;
 							for (int i = 0; i < data.length(); ++i) {
 								if (tokens == 0) {
@@ -220,17 +215,16 @@ public class GameClient {
 									break;
 								}
 							}
-							// if(player.name.equalsIgnoreCase(name)) break;
 							PlayerOnline player = world.getPlayerOnlineByName(name);
 							if(player != null) {
 								player.x = x;
 								player.y = y;
+							} else {
+								world.addEntity(new PlayerOnline(name, packetBroadcast.getAddress(), packetBroadcast.getPort()));
 							}
 							
 							break;
 						}
-						// System.out.println("In listen thread, message from
-						// server: " + msg);
 					} catch (IOException e) {
 						e.printStackTrace();
 					}

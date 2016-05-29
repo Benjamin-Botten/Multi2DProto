@@ -13,14 +13,14 @@ import game.client.GameClient;
 public class Game implements Runnable {
 	public static final int WIDTH = 320;
 	public static final int HEIGHT = 240;
-	public static final int SCALE = 3;
+	public static final int SCALE = 2;
 	public static final String TITLE = "Experiment";
 	private boolean running = false;
 	private int ticks = 0;
 	
 	private static int[] playerColors = {0xff00ff00, 0xffff0000, 0xff0000ff, 0xffffffff};
 	private static String[] playerNames = {"Player", "Test", "D-e-X", "Cosmos", "Start", "End", "Other", "Black", "White"
-			, "Star", "Near"};
+			, "Star", "Near", "Google", "Test2", "Test3", "Test4", "Exp", "Logic"};
 	
 	private Viewport viewport;
 	private Input input;
@@ -33,7 +33,9 @@ public class Game implements Runnable {
 		input = new SimpleInput(viewport);
 		player = new Player(input);
 		world = new World(player);
-		gameClient = new GameClient(new PlayerOnline(assignPlayerName()), world);
+		String name = assignPlayerName();
+		viewport.setTitle(name);
+		gameClient = new GameClient(new PlayerOnline(name), world);
 	}
 	
 	public static int assignPlayerColor() {
@@ -50,7 +52,7 @@ public class Game implements Runnable {
 	
 	public void init() {
 		gameClient.sendJoin();
-		gameClient.listenUpdatePosition();
+		gameClient.listen();
 	}
 	
 	public void start() {
@@ -111,13 +113,17 @@ public class Game implements Runnable {
 	public void tick() {
 		world.tick();
 		gameClient.sendUpdatePosition();
+		gameClient.sendUpdateSprite();
 		
 		ticks++;
+	}
+
+	public Viewport getViewport() {
+		return viewport;
 	}
 	
 	public static void main(String[] args) {
 		Game game = new Game();
 		game.start();
 	}
-
 }

@@ -93,6 +93,18 @@ public class Sprite {
 		this.isAnimated = animated;
 	}
 	
+	public int getDirectionMovement() {
+		return directionMovement;
+	}
+	
+	public int getDirectionFacing() {
+		return directionFacing;
+	}
+	
+	public int getCurrentFrame() {
+		return currentFrame;
+	}
+	
 	public SpriteSheet getSpriteSheet() {
 		return spriteSheet;
 	}

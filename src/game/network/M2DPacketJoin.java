@@ -11,18 +11,17 @@ import game.server.GameServer;
 public class M2DPacketJoin extends M2DPacket {
 	
 	private PlayerOnline player;
-
-	public M2DPacketJoin(InetAddress ip, int port, PlayerOnline player) {
-		super(ip, port);
-		
-		this.player = player;
+	
+	public M2DPacketJoin(int id) {
+		super(id);
 	}
 	
-	public void send(DatagramSocket socket) {
+	public void send(DatagramSocket socket, InetAddress dst, int port) {
+		if(player == null) throw new RuntimeException("Attempted to send M2DPacketUpdatePosition with player set to 'null'");
 		try {
 			String data = player.getUsername();
 			String dataLength = GameServer.formatLength(data.length());
-			String msg = (GameServer.M2DP_DATA_JOIN + dataLength + data);
+			String msg = (M2DProtocol.M2DP_DATA_JOIN + dataLength + data);
 			byte[] buf = msg.getBytes();
 			packet = new DatagramPacket(buf, buf.length, ip, port);
 			socket.send(packet);
@@ -43,4 +42,7 @@ public class M2DPacketJoin extends M2DPacket {
 		}
 	}
 	
+	public void setPlayer(PlayerOnline player) {
+		this.player = player;
+	}
 }

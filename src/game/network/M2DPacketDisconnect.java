@@ -10,19 +10,16 @@ import game.server.GameServer;
 
 public class M2DPacketDisconnect extends M2DPacket {
 
-	private PlayerOnline player;
-	
-	public M2DPacketDisconnect(InetAddress ip, int port, PlayerOnline player) {
-		super(ip, port);
+	public M2DPacketDisconnect(int id) {
+		super(id);
 		
-		this.player = player;
 	}
 	
-	public void send(DatagramSocket socket) {
+	public void send(PlayerOnline player, DatagramSocket socket, InetAddress dst, int port) {
 		try {
 			String data = player.getUsername();
 			String dataLength = GameServer.formatLength(data.length());
-			String msg = (GameServer.M2DP_DATA_DISCONNECT + dataLength + data);
+			String msg = (M2DProtocol.M2DP_DATA_DISCONNECT + dataLength + data);
 			byte[] buf = msg.getBytes();
 			packet = new DatagramPacket(buf, buf.length, ip, port);
 			socket.send(packet);
