@@ -11,9 +11,9 @@ import engine.world.entity.PlayerOnline;
 import game.client.GameClient;
 
 public class Game implements Runnable {
-	public static final int WIDTH = 320;
-	public static final int HEIGHT = 240;
-	public static final int SCALE = 2;
+	public static final int WIDTH = 640;
+	public static final int HEIGHT = 480;
+	public static final int SCALE = 1;
 	public static final String TITLE = "Experiment";
 	private boolean running = false;
 	private int ticks = 0;
@@ -112,8 +112,8 @@ public class Game implements Runnable {
 	
 	public void tick() {
 		world.tick();
-		gameClient.sendUpdatePosition();
-		gameClient.sendUpdateSprite();
+		gameClient.updatePlayer(player);
+		gameClient.sendUpdatePlayer();
 		
 		ticks++;
 	}

@@ -116,7 +116,7 @@ public class World {
 		}
 	}
 	
-	public PlayerOnline getPlayerOnlineByName(String name) {
+	public PlayerOnline getPlayerByName(String name) {
 		for(int i = 0; i < players.size(); ++i) {
 			if(players.get(i).getUsername().equalsIgnoreCase(name)) {
 				return players.get(i);

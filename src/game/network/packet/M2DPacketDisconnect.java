@@ -1,4 +1,4 @@
-package game.network;
+package game.network.packet;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -6,13 +6,18 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 import engine.world.entity.PlayerOnline;
+import game.network.M2DProtocol;
+import game.network.parcel.M2DParcelDisconnect;
 import game.server.GameServer;
 
 public class M2DPacketDisconnect extends M2DPacket {
 
-	public M2DPacketDisconnect(int id) {
+	private M2DParcelDisconnect parcel;
+	
+	public M2DPacketDisconnect(int id, M2DParcelDisconnect parcel) {
 		super(id);
 		
+		this.parcel = parcel;
 	}
 	
 	public void send(PlayerOnline player, DatagramSocket socket, InetAddress dst, int port) {
@@ -38,6 +43,10 @@ public class M2DPacketDisconnect extends M2DPacket {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public M2DParcelDisconnect getParcel() {
+		return parcel;
 	}
 
 }

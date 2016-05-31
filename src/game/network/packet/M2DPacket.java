@@ -1,4 +1,4 @@
-package game.network;
+package game.network.packet;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -6,11 +6,16 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 import game.client.GameClient;
+import game.network.M2DProtocol;
+import game.network.parcel.M2DParcel;
+import game.network.parcel.M2DParcelDisconnect;
+import game.network.parcel.M2DParcelJoin;
+import game.network.parcel.M2DParcelUpdatePlayer;
 
 public class M2DPacket {
 	private static final int MAX_PACKET_TYPES = 256;
 	
-	private int id;
+	public final int id;
 	
 	protected int port;
 	protected InetAddress ip; //ip_dst
@@ -19,10 +24,10 @@ public class M2DPacket {
 	
 	public static final M2DPacket[] packets = new M2DPacket[MAX_PACKET_TYPES];
 	
-	public static final M2DPacket join = new M2DPacketJoin(M2DProtocol.M2DP_JOIN);
-	public static final M2DPacket disconnect = new M2DPacketDisconnect(M2DProtocol.M2DP_DISCONNECT);
-	public static final M2DPacket updatePlayerPosition = new M2DPacketUpdatePosition(M2DProtocol.M2DP_UPDATE_POSITION);
-	public static final M2DPacket updatePlayerSprite = new M2DPacketUpdateSprite(M2DProtocol.M2DP_UPDATE_SPRITE);
+	public static final M2DPacketJoin join = new M2DPacketJoin(M2DProtocol.M2DP_JOIN, new M2DParcelJoin());
+	public static final M2DPacketDisconnect disconnect = new M2DPacketDisconnect(M2DProtocol.M2DP_DISCONNECT, new M2DParcelDisconnect());
+	public static final M2DPacketUpdatePlayer updatePlayer = new M2DPacketUpdatePlayer(M2DProtocol.M2DP_UPDATE_PLAYER, new M2DParcelUpdatePlayer());
+	public static final M2DPacketJoinReply joinReply = new M2DPacketJoinReply(M2DProtocol.M2DP_JOIN_REPLY);
 	
 	public M2DPacket(int id) {
 		if(packets[id] != null) {
@@ -38,19 +43,7 @@ public class M2DPacket {
 	public void recv(DatagramSocket socket) {
 	}
 	
-	public M2DPacket parse(M2DProtocol m2dp) {
-		switch(m2dp.getDataId()) {
-		case M2DProtocol.M2DP_JOIN:
-			break;
-		case M2DProtocol.M2DP_DISCONNECT:
-			break;
-		case M2DProtocol.M2DP_UPDATE_POSITION:
-			break;
-		case M2DProtocol.M2DP_UPDATE_SPRITE:
-			break;
-		}
-		
-		return null;
+	public void parse(M2DProtocol m2dp) {
 	}
 	
 	/**

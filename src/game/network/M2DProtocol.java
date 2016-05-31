@@ -14,22 +14,17 @@ public class M2DProtocol {
 	public static final String M2DP_REPLY_JOIN_DENY = "0002";
 	public static final String M2DP_REPLY_DISCONNECT_ACCEPT = "0003";
 	public static final String M2DP_REPLY_DISCONNECT_DENY = "0004";
-	public static final String M2DP_REPLY_UPDATE_POSITION_ACCEPT = "0005";
-	public static final String M2DP_REPLY_UPDATE_POSITION_DENY = "0006";
-	public static final String M2DP_REPLY_UPDATE_SPRITE_ACCEPT = "0007";
-	public static final String M2DP_REPLY_UPDATE_SPRITE_DENY = "0008";
 
 	// String representation of the data/msg identifiers for transmissions
 	public static final String M2DP_DATA_JOIN = "0001";
 	public static final String M2DP_DATA_DISCONNECT = "0002";
-	public static final String M2DP_DATA_UPDATE_POSITION = "0003";
-	public static final String M2DP_DATA_UPDATE_SPRITE = "0004";
+	public static final String M2DP_DATA_UPDATE_PLAYER = "0003";
 
 	// M2D-protocol data/msg identifiers
 	public static final int M2DP_JOIN = 1;
 	public static final int M2DP_DISCONNECT = 2;
-	public static final int M2DP_UPDATE_POSITION = 3;
-	public static final int M2DP_UPDATE_SPRITE = 4;
+	public static final int M2DP_UPDATE_PLAYER = 3;
+	public static final int M2DP_JOIN_REPLY = 4;
 
 	// Protocol message-indexes for message-content (i.e. where the data-id
 	// starts and ends in the message, and such)

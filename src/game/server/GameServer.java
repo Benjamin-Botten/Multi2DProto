@@ -51,14 +51,13 @@ public class GameServer extends Thread {
 				System.out.println("Got message from client (" + ip.toString() + ": " + port);
 
 				// Output message from client
-				String msgClient = new String(packet.getData());
-				System.out.println("Game Server: Received data from client > " + msgClient);
+//				String msgClient = new String(packet.getData());
+//				System.out.println("Game Server: Received data from client > " + msgClient);
 				
-				//Construct reply
-				if(buf != null && buf[0] != '\0') {
-					// Send new packet to sender client
-					packet = new DatagramPacket(buf, buf.length, ip, port);
-					socket.send(packet);
+				try {
+					Thread.sleep(4);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -112,5 +111,9 @@ public class GameServer extends Thread {
 	public static void main(String[] args) {
 		GameServer gameServer = new GameServer();
 		gameServer.start();
+	}
+
+	public void addPlayer(PlayerOnline playerOnline) {
+		players.add(playerOnline);
 	}
 }
