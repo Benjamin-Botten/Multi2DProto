@@ -25,6 +25,7 @@ public class M2DProtocol {
 	public static final int M2DP_DISCONNECT = 2;
 	public static final int M2DP_UPDATE_PLAYER = 3;
 	public static final int M2DP_JOIN_REPLY = 4;
+	public static final int M2DP_DISCONNECT_REPLY = 5;
 
 	// Protocol message-indexes for message-content (i.e. where the data-id
 	// starts and ends in the message, and such)

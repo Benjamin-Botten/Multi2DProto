@@ -28,6 +28,7 @@ public class M2DPacket {
 	public static final M2DPacketDisconnect disconnect = new M2DPacketDisconnect(M2DProtocol.M2DP_DISCONNECT, new M2DParcelDisconnect());
 	public static final M2DPacketUpdatePlayer updatePlayer = new M2DPacketUpdatePlayer(M2DProtocol.M2DP_UPDATE_PLAYER, new M2DParcelUpdatePlayer());
 	public static final M2DPacketJoinReply joinReply = new M2DPacketJoinReply(M2DProtocol.M2DP_JOIN_REPLY);
+	public static final M2DPacketDisconnectReply disconnectReply = new M2DPacketDisconnectReply(M2DProtocol.M2DP_DISCONNECT_REPLY, new M2DParcelDisconnect());
 	
 	public M2DPacket(int id) {
 		if(packets[id] != null) {

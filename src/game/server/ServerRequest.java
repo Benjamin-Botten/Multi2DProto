@@ -10,6 +10,7 @@ import engine.world.entity.PlayerOnline;
 import game.network.M2DPHandler;
 import game.network.M2DProtocol;
 import game.network.packet.M2DPacket;
+import game.network.packet.M2DPacketDisconnect;
 import game.network.packet.M2DPacketJoin;
 import game.network.packet.M2DPacketUpdatePlayer;
 
@@ -64,6 +65,13 @@ public class ServerRequest extends Thread implements M2DPHandler {
 			System.out.println("User \"" + name + "\" joined");
 			gameServer.addPlayer(new PlayerOnline(name, ip, port));
 			M2DPacket.joinReply.send(gameServer.getSocket(), ip, port);
+		}
+		if (packet instanceof M2DPacketDisconnect) {
+			M2DPacketDisconnect disconnect = (M2DPacketDisconnect) M2DPacket.packets[m2dp.getDataId()];
+			String name = disconnect.getParcel().username;
+			System.out.println("User \"" + name + "\" disconnected");
+			gameServer.disconnectPlayerByName(name);
+			M2DPacket.disconnectReply.send(gameServer.getSocket(), ip, port);
 		}
 		if (packet instanceof M2DPacketUpdatePlayer) {
 			System.out.println("Got packet update player from client");

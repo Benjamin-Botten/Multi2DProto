@@ -43,17 +43,14 @@ public class GameServer extends Thread {
 				packet = new DatagramPacket(buf, buf.length);
 				socket.receive(packet);
 				
-				new ServerRequest(this, packet).start();
-				// Sender details
+				// Sender details 
 				InetAddress ip = packet.getAddress();
 				int port = packet.getPort();
 				
-				System.out.println("Got message from client (" + ip.toString() + ": " + port);
-
-				// Output message from client
-//				String msgClient = new String(packet.getData());
-//				System.out.println("Game Server: Received data from client > " + msgClient);
+				System.out.println("Got message from client (" + ip.toString() + ": " + port + ")");
 				
+				new ServerRequest(this, packet).start();
+
 				try {
 					Thread.sleep(4);
 				} catch (InterruptedException e) {
@@ -86,9 +83,23 @@ public class GameServer extends Thread {
 	
 	/**
 	 * Check if any clients disconnected impromptu
+	 * TODO: Remove
 	 */
 	public void checkLogons() {
 		
+	}
+	
+	/**
+	 * TODO: Implement a safer disconnection, that is, make sure that disconnections are "handshaked" (i.o.w. all endpoints have acknowledged the event)
+	 * @param name
+	 */
+	public void disconnectPlayerByName(String name) {
+		for(int i = 0; i < players.size(); ++i) {
+			PlayerOnline curPlayer = players.get(i);
+			if(curPlayer.username.equalsIgnoreCase(name)) {
+				players.remove(curPlayer);
+			}
+		}
 	}
 	
 	public List<PlayerOnline> getPlayers() {

@@ -16,7 +16,7 @@ public class M2DParcelUpdatePlayer extends M2DParcel{
 	
 	public void fill(M2DProtocol m2dp) {
 		String data = m2dp.getData();
-		System.out.println("IN PARCEL: filling parcel with " + data);
+//		System.out.println("IN PARCEL: filling parcel with " + data);
 		int tokens = 0;
 		int lastTokenIndex = 0;
 		for (int i = 0; i < data.length(); ++i) {

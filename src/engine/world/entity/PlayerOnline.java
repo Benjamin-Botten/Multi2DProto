@@ -15,7 +15,6 @@ public class PlayerOnline extends Player {
 	
 	public final String username;
 	
-	
 	public PlayerOnline(String username) {
 		super(null);
 		

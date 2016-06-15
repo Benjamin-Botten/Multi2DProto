@@ -14,6 +14,8 @@ import game.Game;
 import game.network.M2DPHandler;
 import game.network.M2DProtocol;
 import game.network.packet.M2DPacket;
+import game.network.packet.M2DPacketDisconnect;
+import game.network.packet.M2DPacketDisconnectReply;
 import game.network.packet.M2DPacketJoin;
 import game.network.packet.M2DPacketUpdatePlayer;
 import game.server.GameServer;
@@ -121,6 +123,12 @@ public class GameClient implements M2DPHandler {
 				world.addEntity(newPlayer);
 			}
 		}
+		if(packet instanceof M2DPacketDisconnectReply) {
+			M2DPacketDisconnectReply disconnectReply = (M2DPacketDisconnectReply) packet;
+			String username = disconnectReply.getParcel().username;
+			world.removePlayerByName(username);
+			System.out.println("Player \"" + username + "\" disconnected.");
+		}
 	}
 	
 	public synchronized void listen() {
@@ -131,13 +139,13 @@ public class GameClient implements M2DPHandler {
 			public void run() {
 				while (true) {
 					try {
-						System.out.println("Listening for game-update packet!");
+//						System.out.println("Listening for game-update packet!");
 						byte[] buf = new byte[256];
 						packetBroadcast = new DatagramPacket(buf, buf.length);
 						socket.receive(packetBroadcast);
  
 						String msg = new String(packetBroadcast.getData());
-						System.out.println("RECEIVED A BROADCAST PACKET WITH MESSAGE: " + msg);
+//						System.out.println("RECEIVED A BROADCAST PACKET WITH MESSAGE: " + msg);
 
 						handle(msg, packetBroadcast.getAddress(), packetBroadcast.getPort());
 					} catch (IOException e) {
@@ -150,6 +158,7 @@ public class GameClient implements M2DPHandler {
 
 	// TODO: Implement disconnect
 	public void sendDisconnect() {
+		M2DPacket.disconnect.send(player, socket, ip, GameServer.PORT);
 	}
 
 	public void updatePlayer(Player srcPlayer) {
