@@ -10,4 +10,6 @@ NOTE: The current source may not be up to date with the imagery, simply because 
 
 http://pasteboard.co/1Hn1i9y5.png
 
-http://pasteboard.co/1OZjxPF3.png (20.06.2016)
+http://pasteboard.co/1OZjxPF3.png (20.06.2016) - Setting targets (HUD/GUI elements)
+
+http://pasteboard.co/1PbhCkX8.png (20.06.2016) - Camera transform added to fix mouse-targetting with camera being offset by player
