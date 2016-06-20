@@ -4,7 +4,7 @@ Prototyping/hobby project to learn more first-hand about networking algorithms, 
 
 
 
-NOTE: The current source may not be up to date with the imagery, simply because I'm really bad at continuously pushing. In that regard it's a boon to not be a woman.
+NOTE: The current source may not be up to date with the imagery, simply because I'm really bad at continuously pushing. In that regard it's a boon not to be a woman.
 
 #State of affair(s):
 
