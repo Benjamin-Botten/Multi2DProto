@@ -5,3 +5,5 @@ Prototyping/hobby project to learn more first-hand about networking algorithms, 
 State of affair(s):
 
 http://pasteboard.co/1Hn1i9y5.png
+
+http://pasteboard.co/1OZjxPF3.png (20.06.2016)
