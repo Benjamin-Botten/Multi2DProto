@@ -2,6 +2,7 @@ package engine.visuals.viewport;
 
 import java.awt.Canvas;
 import java.awt.Graphics;
+import java.awt.event.WindowAdapter;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
@@ -16,6 +17,7 @@ import engine.world.entity.Inventory;
 import engine.world.entity.ItemEntity;
 import engine.world.entity.Player;
 import engine.world.entity.PlayerOnline;
+import engine.world.entity.SteelArrowProjectile;
 import engine.world.tile.Tile;
 import game.Game;
 
@@ -32,13 +34,14 @@ public class Viewport extends Canvas {
 	private String title = Game.TITLE;
 	private BufferedImage raster;
 	private BufferStrategy bs;
-	private int camX, camY;
+	private Camera camera;
 	
-	public Viewport(int w, int h, int scale, String title) {
+	public Viewport(int w, int h, int scale, String title, Camera camera) {
 		this.w = w;
 		this.h = h;
 		this.scale = scale;
 		this.title = title;
+		this.camera = camera;
 		
 		raster = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 		pixels = ((DataBufferInt) raster.getRaster().getDataBuffer()).getData();
@@ -57,14 +60,16 @@ public class Viewport extends Canvas {
         frame.setLocationRelativeTo(null);
 	}
 	
-	public void render(World world) { 
+	public void render(World world) {
+		int camX = camera.getX();
+		int camY = camera.getY();
 		for(int y = 0; y < Game.HEIGHT + 16; y += 16) {
 			if(y >= world.tilesHeight * 8) continue;
 			if(y + camY < 0) continue;
-			for(int x = 0; x < Game.WIDTH; x += 16) {
+			for(int x = 0; x < Game.WIDTH + 16; x += 16) {
 				if(x >= world.tilesWidth * 8) continue;
 				if(x + camX < 0) continue;
-				render(world.getTile(x + camX >> 0, y + camY >> 0), x + ((camX >> 4) << 4), y + ((camY >> 4) << 4));
+				render(world.getTile((x + camX) >> 0, (y + camY) >> 0), x + ((camX >> 4) << 4), y + ((camY >> 4) << 4));
 			}
 		}
 	}
@@ -74,6 +79,9 @@ public class Viewport extends Canvas {
 		int textureY = (tile.id / (256 >> 3)) << 3; //bitshift 'ere
 		int sheetWidth = SpriteSheet.tiles.w;
 		
+		int camX = camera.getX();
+		int camY = camera.getY();
+		
 		xp -= camX;
 		yp -= camY;
 		
@@ -81,7 +89,7 @@ public class Viewport extends Canvas {
 			if(y + yp < 0 || y + yp >= h) continue;
 			for(int x = 0; x < 8 * scale; ++x) {
 				if(x + xp < 0 || x + xp >= w) continue;
-				setPixel(x + xp, y + yp, SpriteSheet.tiles.pixels[((x >> 1) + textureX) + ((y >> 1) + textureY) * 256]);
+				setPixel((x + xp), (y + yp), SpriteSheet.tiles.pixels[((x >> 1) + textureX) + ((y >> 1) + textureY) * 256]);
 			}
 		}
 	}
@@ -105,6 +113,9 @@ public class Viewport extends Canvas {
 		int textureY = sprite.getCurrentRowIndex() * (256 >> 4); //bitshift 'ere
 		int sheetWidth = sprite.getSpriteSheet().w;
 		
+		int camX = camera.getX();
+		int camY = camera.getY();
+		
 		xp -= camX;
 		yp -= camY;
 		
@@ -119,9 +130,39 @@ public class Viewport extends Canvas {
 		}
 	}
 	
-	public void renderGuiElement(int id, int sx, int sy) {
+	public void renderGuiElement(int id, int sx, int sy, int sw, int sh) {
 		int textureX = (id % (256 >> 3)) << 3;
 		int textureY = (id / (256 >> 3)) << 3;
+		
+		int camX = camera.getX();
+		int camY = camera.getY();
+		
+		sx -= camX;
+		sy -= camY;
+		
+		int scaleWidth = ((sw >> 1) >> 3) - 1;
+		int scaleHeight = ((sh >> 1) >> 3) - 1;
+		
+		for(int y = 0; y < 8 * (scale + scaleHeight); ++y) {
+			if(y + sy < 0 || y + sy >= h) continue;
+			for(int x = 0; x < 8 * (scale + scaleWidth); ++x) {
+				if(x + sx < 0 || x + sx >= w) continue;
+				int spriteColor = SpriteSheet.gui.pixels[((x / (scale + scaleWidth)) + textureX) + ((y / (scale + scaleHeight)) + textureY) * SpriteSheet.items.w];
+				if(spriteColor != SpriteSheet.COLORKEY) {
+					setPixel(x + sx, y + sy, spriteColor);
+				}
+			}
+		}
+	}
+	
+	public void renderGuiElement(int id, int sx, int sy, int sw, int sh, int tick, float phaseSize, float freqScalar) {
+		int textureX = (id % (256 >> 3)) << 3;
+		int textureY = (id / (256 >> 3)) << 3;
+		
+		int camX = camera.getX();
+		int camY = camera.getY();
+		
+		sy = (int) (sy + ((tick % (Game.DEFAULT_CLIENT_TICKS * freqScalar)) - 16) * phaseSize * 4);
 		
 		sx -= camX;
 		sy -= camY;
@@ -144,8 +185,7 @@ public class Viewport extends Canvas {
 		if(entity instanceof PlayerOnline) {
 			PlayerOnline player = (PlayerOnline) entity;
 			player.getSprite().render(this, (int) player.x, (int) player.y);
-			render(player.getUsername(), (int) player.x + 8, (int) player.y - 8);
-			
+			render(player.getUsername(), (int) player.x + 8 * scale, (int) player.y - 8 * scale);
 			//Display healthbar
 			int healthBarId = 4;
 			if(player.getLife() >= (int) (player.getMaxLife() * 0.76)) {
@@ -160,27 +200,37 @@ public class Viewport extends Canvas {
 			else if(player.getLife() >= (int) (player.getMaxLife() * 0.01)) {
 				healthBarId = 3;
 			}
-			renderGuiElement(healthBarId, (int) player.x + 4, (int) player.y - 2);
+//			renderGuiElement(healthBarId, (int) player.x + 4  * scale, (int) player.y - 2 * scale, player.w, player.h);
 		}
 		else if(entity instanceof Player) {
 			Player player = (Player) entity;
 			player.getSprite().render(this, (int) player.x, (int) player.y);
+		}
+		else if(entity instanceof SteelArrowProjectile) {
+			int id = ((SteelArrowProjectile) entity).id;
+			int textureX = (id % (256 >> 3)) << 3;
+			int textureY = (id / (256 >> 3)) << 3;
+			int xp = (int) entity.x;
+			int yp = (int) entity.y;
 			
-			//Display healthbar
-			int healthBarId = 4;
-			if(player.getLife() >= (int) (player.getMaxLife() * 0.76)) {
-				healthBarId = 0;
+			int camX = camera.getX();
+			int camY = camera.getY();
+			
+			xp -= camX;
+			yp -= camY;
+			
+			for(int y = 0; y < 8 * scale; ++y) {
+				if(y + yp < 0 || y + yp >= h) continue;
+				for(int x = 0; x < 8 * scale; ++x) {
+					if(x + xp < 0 || x + xp >= w) continue;
+					int spriteColor = SpriteSheet.itementities.pixels[((x >> 1) + textureX) + ((y >> 1) + textureY) * SpriteSheet.items.w];
+					if(spriteColor != SpriteSheet.COLORKEY) {
+						setPixel(x + xp, y + yp, spriteColor);
+					}
+				}
 			}
-			else if(player.getLife() >= (int) (player.getMaxLife() * 0.51)) {
-				healthBarId = 1;
-			}
-			else if(player.getLife() >= (int) (player.getMaxLife() * 0.26)) {
-				healthBarId = 2;
-			}
-			else if(player.getLife() >= (int) (player.getMaxLife() * 0.01)) {
-				healthBarId = 3;
-			}
-			renderGuiElement(healthBarId, (int) player.x + 4, (int) player.y - 2);
+			
+			renderGroundShadow((int) entity.x, (int) entity.y + 18, 16, 2);
 		}
 //		else if(entity instanceof ItemEntity) {
 //			ItemEntity item = (ItemEntity) entity;
@@ -220,6 +270,9 @@ public class Viewport extends Canvas {
 		int xp = (int) item.x;
 		int yp = (int) (item.y + ((tick % 32) - 16) * phaseSize * 4);
 		
+		int camX = camera.getX();
+		int camY = camera.getY();
+		
 		xp -= camX;
 		yp -= camY;
 		
@@ -239,6 +292,9 @@ public class Viewport extends Canvas {
 	
 	public void renderGroundShadow(int xp, int yp, int shadowWidth, int shadowHeight) {
 		float shadowAlpha = 75f / 255.f;
+		
+		int camX = camera.getX();
+		int camY = camera.getY();
 		
 		xp -= camX;
 		yp -= camY;
@@ -262,6 +318,9 @@ public class Viewport extends Canvas {
 	}
 	
 	public void render(String text, int xp, int yp) {
+		int camX = camera.getX();
+		int camY = camera.getY();
+		
 		xp -= camX;
 		yp -= camY;
 		
@@ -307,6 +366,23 @@ public class Viewport extends Canvas {
 		}
 	}
 	
+	public void renderBounds(int xp, int yp, int ew, int eh) {
+		int camX = camera.getX();
+		int camY = camera.getY();
+		
+		xp -= camX;
+		yp -= camY;
+		for(int y = 0; y < eh; ++y) {
+			if(y + yp < 0 || y + yp >= h) continue;
+			for(int x = 0; x < ew; ++x) {
+				if(x + xp < 0 || x + xp >= w) continue;
+				if(x == 0 || x == ew - 1 || y == 0 || y == eh - 1) {
+					setPixel(x + xp, y + yp, 0xffff0000);
+				}
+			}
+		}
+	}
+	
 	public void setCamera(int camX, int camY) {
 		if(camX < 0) {
 			camX = 0;
@@ -314,8 +390,7 @@ public class Viewport extends Canvas {
 		if(camY < 0) {
 			camY = 0;
 		}
-		this.camX = camX;
-		this.camY = camY;
+		camera.set(camX, camY);
 	}
 	
 	public void setPixel(int x, int y, int color) {
@@ -356,5 +431,17 @@ public class Viewport extends Canvas {
 	
 	public void setTitle(String title) {
 		frame.setTitle(title);
+	}
+	
+	public void addWindowListener(WindowAdapter windowAdapter) {
+		frame.addWindowListener(windowAdapter);
+	}
+	
+	public void setCamera(Camera camera) {
+		this.camera = camera;
+	}
+
+	public Camera getCamera() {
+		return camera;
 	}
 }

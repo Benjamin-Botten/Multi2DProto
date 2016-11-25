@@ -21,6 +21,7 @@ public class M2DPacketUpdatePlayer extends M2DPacket {
 	}
 	
 	public void send(DatagramSocket socket, InetAddress ip, int port, PlayerOnline player) {
+		if(player == null) throw new IllegalArgumentException("Attempted sending null player update");
 		try {
 			String data = player.getUsername() + "," + (int) player.x + "," + (int) player.y + "," + player.getSprite().getRowIndex() + "," + player.getSprite().getColumnIndex() + 
 					"," + player.getSprite().getDirectionMovement() + "," + player.getSprite().getCurrentFrame();

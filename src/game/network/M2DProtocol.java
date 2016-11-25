@@ -81,6 +81,16 @@ public class M2DProtocol {
 		return new M2DProtocol(dataId, dataLength, data, ip, port);
 	}
 	
+	public static M2DProtocol parseTCP(String msg, InetAddress ip, int port) {
+		int dataId = Integer.parseInt(msg.substring(M2DP_DATA_ID_POS_START, M2DP_DATA_ID_POS_END));
+		int dataLength = Integer.parseInt(msg.substring(M2DP_DATA_MSG_LENGTH_POS_START, M2DP_DATA_MSG_LENGTH_POS_END));
+		int startIndex = M2DP_DATA_MSG_LENGTH_POS_END;
+		int endIndex = startIndex + dataLength;
+		String data = msg.substring(startIndex, endIndex);
+		
+		return new M2DProtocol(dataId, dataLength, data, ip, port);
+	}
+	
 	public String getData() {
 		return data;
 	}

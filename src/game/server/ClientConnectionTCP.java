@@ -8,6 +8,10 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import engine.world.entity.PlayerOnline;
+import game.network.M2DProtocol;
+import game.network.packet.M2DPacket;
+
 /**
  * 
  * @author robot
@@ -15,72 +19,94 @@ import java.net.Socket;
  */
 
 public class ClientConnectionTCP implements Runnable {
-	
+
 	private Socket connection;
 	private boolean connected;
 	private static int connections;
 	private int id;
 	private PrintWriter writer;
-	
-	public ClientConnectionTCP(Socket connection) {
+	private GameServer gameServer;
+
+	public ClientConnectionTCP(Socket connection, GameServer gameServer) {
 		this.connection = connection;
-		
+		this.gameServer = gameServer;
+
 		try {
 			writer = new PrintWriter(new BufferedOutputStream(connection.getOutputStream()));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		if(connection.isConnected()) {
+
+		if (connection.isConnected()) {
 			connected = true;
 		}
-		
+
 		id = connections++;
 	}
-	
+
 	public void start() {
 		new Thread(this).start();
 	}
-	
+
 	@Override
 	public void run() {
-		
+
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		long startTime = System.currentTimeMillis();
-		
-		while(connected) {
-			//getServerInput();
-			if(connection.isClosed() || !connection.isConnected()) {
+
+		while (connected) {
+			// getServerInput();
+			if (connection.isClosed() || !connection.isConnected()) {
 				connected = false;
+				--connections;
 				break;
 			}
-			
+
 			try {
 				String line = "";
-				while((line = reader.readLine()) != null) {
-					System.out.println("From Client " + id + "> " + line);
-					
-					if(line.equalsIgnoreCase("/quit") || line.equalsIgnoreCase("/exit") || line.equalsIgnoreCase("/stop")) {
-						connection.close();
-					}
+				line = reader.readLine();
+				if (line == null)
+					break;
+				System.out.println("From Client " + id + "> " + line);
+
+				if (line.contains(M2DProtocol.M2DP_DATA_JOIN)) {
+					System.out.println("Message from client asked to join, sending response");
+					M2DProtocol m2dp = M2DProtocol.parseTCP(line, connection.getInetAddress(), connection.getPort());
+					gameServer.addPlayer(new PlayerOnline(m2dp.getData(), connection.getInetAddress(), connection.getPort()));
+					sendMessage(M2DProtocol.M2DP_REPLY_JOIN_ACCEPT);
 				}
+				if (line.contains(M2DProtocol.M2DP_DATA_DISCONNECT)) {
+					M2DProtocol m2dp = M2DProtocol.parseTCP(line, connection.getInetAddress(), connection.getPort());
+					gameServer.disconnectPlayerByName(m2dp.getData());
+					sendMessage(M2DProtocol.M2DP_REPLY_DISCONNECT_ACCEPT);
+					connection.close();
+				}
+//				if (line.equalsIgnoreCase("/quit") || line.equalsIgnoreCase("/exit")
+//						|| line.equalsIgnoreCase("/stop")) {
+//					connection.close();
+//				}
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			
-			if(System.currentTimeMillis() - startTime > 500) {
+			if (System.currentTimeMillis() - startTime > 500) {
 			}
 		}
+
 	}
-	
+
 	public void sendMessage(String msg) {
 		writer.println(msg);
 		writer.flush();
+	}
+	
+	public boolean isConnected() {
+		return connected;
 	}
 }

@@ -18,6 +18,7 @@ public class SpriteSheet {
 	public static final SpriteSheet tiles = loadSpriteSheet("/resrc/art/tilesprites.png", 8, 8);
 	public static final SpriteSheet font = loadSpriteSheet("/resrc/art/font_general.png", 8, 8);
 	public static final SpriteSheet gui = loadSpriteSheet("/resrc/art/guisprites.png", 8, 8);
+	public static final SpriteSheet itementities = loadSpriteSheet("/resrc/art/itementitysprites.png", 8, 8);
 	
 	public final int w, h;
 	public final int[] pixels;

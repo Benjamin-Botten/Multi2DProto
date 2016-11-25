@@ -27,7 +27,7 @@ public class M2DPacketDisconnectReply extends M2DPacket {
 			String dataLength = GameServer.formatLength(data.length());
 			String msg = (M2DProtocol.M2DP_REPLY_DISCONNECT_ACCEPT + dataLength + data);
 			byte[] buf = msg.getBytes();
-			packet = new DatagramPacket(buf, buf.length, InetAddress.getByName("bejobo.servegame.com"), port);
+			packet = new DatagramPacket(buf, buf.length, dst, port);
 			socket.send(packet);
 		} catch (IOException e) {
 			e.printStackTrace();

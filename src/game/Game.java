@@ -1,11 +1,14 @@
 package game;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Random;
 
 import com.sun.glass.events.KeyEvent;
 
 import engine.io.Input;
 import engine.io.SimpleInput;
+import engine.visuals.viewport.Camera;
 import engine.visuals.viewport.Viewport;
 import engine.world.World;
 import engine.world.entity.Player;
@@ -13,10 +16,13 @@ import engine.world.entity.PlayerOnline;
 import game.client.GameClient;
 
 public class Game implements Runnable {
+	public static final int DEFAULT_CLIENT_TICKS = 32;
+	public static final int SCALE_BITS = 1;
 	public static final int SCALE = 2;
 	public static final int WIDTH = 640 * 1;
 	public static final int HEIGHT = 480 * 1;
 	public static final String TITLE = "Experiment";
+	public static final String HOSTNAME = "localhost";
 	private boolean running = false;
 	private int ticks = 0;
 	
@@ -27,18 +33,29 @@ public class Game implements Runnable {
 	private Viewport viewport;
 	private Input input;
 	private Player player;
+	private Camera camera;
 	private World world;
 	private GameClient gameClient;
 	private String name;
+	
 	public Game() {
-		viewport = new Viewport(WIDTH, HEIGHT, SCALE, TITLE);
+		camera = new Camera();
+		viewport = new Viewport(WIDTH, HEIGHT, SCALE, TITLE, camera);
 		input = new SimpleInput(viewport);
-		player = new Player(input);
+		player = new Player(input, camera);
 		world = new World(player);
 		
 		name = assignPlayerName();
+		System.out.println("Starting game, assigning player name \"" + name + "\"");
 		viewport.setTitle(name);
-		gameClient = new GameClient(new PlayerOnline(name), world);
+		viewport.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent we) {
+				System.out.println("Exited client, disconnecting player");
+				disconnect();
+			}
+		});
+		gameClient = new GameClient(HOSTNAME, new PlayerOnline(name), world);
 	}
 	
 	public static int assignPlayerColor() {
@@ -111,7 +128,7 @@ public class Game implements Runnable {
 	}
 	
 	public void disconnect() {
-		gameClient.sendDisconnect();
+		gameClient.disconnect();
 	}
 	
 	public void render() {
@@ -129,13 +146,11 @@ public class Game implements Runnable {
 		gameClient.updatePlayer(player);
 		gameClient.sendUpdatePlayer();
 		
-		viewport.setCamera((int) player.x - HALF_WIDTH, (int) player.y - HALF_HEIGHT);
-		
-		ticks++;
-		
 		if(input.keys[KeyEvent.VK_ESCAPE]) {
 			quit();
 		}
+		
+		ticks++;
 	}
 	
 	private void quit() {

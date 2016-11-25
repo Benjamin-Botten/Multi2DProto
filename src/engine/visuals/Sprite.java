@@ -114,7 +114,7 @@ public class Sprite {
 	}
 	
 	public int getCurrentRowIndex() {
-		return rowIndex + directionMovement;
+		return rowIndex + directionFacing;
 	}
 	
 	public int getColumnIndex() {

@@ -31,24 +31,6 @@ public class ServerRequest extends Thread implements M2DPHandler {
 		ip = packet.getAddress();
 	}
 
-	public void broadcastPlayerUpdate(String msg, InetAddress ip, int port) {
-		List<PlayerOnline> players = gameServer.getPlayers();
-		System.out.println("Number of players online: " + players.size());
-		for (int i = 0; i < players.size(); ++i) {
-			if (players.get(i).getAddress().equals(ip) && players.get(i).getPort() == port)
-				continue;
-			// byte[] buf = msg.getBytes();
-			// packet = new DatagramPacket(buf, buf.length,
-			// players.get(i).getAddress(), players.get(i).getPort());
-			// System.out.println("Sending packet: \"" + msg + "\", " +
-			// players.get(i).getAddress().toString() + ", " +
-			// players.get(i).getPort());
-			// gameServer.getSocket().send(packet);
-			System.out.println("Broadcasting player update to clients");
-			M2DPacket.updatePlayer.send(gameServer.getSocket(), ip, port, players.get(i));
-		}
-	}
-
 	@Override
 	public void run() {
 		handle(msg, ip, port);
@@ -59,55 +41,64 @@ public class ServerRequest extends Thread implements M2DPHandler {
 		M2DProtocol m2dp = M2DProtocol.parseMessage(msg, ip, port);
 		M2DPacket packet = M2DPacket.packets[m2dp.getDataId()];
 		packet.parse(m2dp);
-		if (packet instanceof M2DPacketJoin) {
-			M2DPacketJoin join = (M2DPacketJoin) M2DPacket.packets[m2dp.getDataId()];
-			String name = join.getParcel().username;
-			System.out.println("User \"" + name + "\" joined");
-			gameServer.addPlayer(new PlayerOnline(name, ip, port));
-			M2DPacket.joinReply.send(gameServer.getSocket(), ip, port);
-		}
-		if (packet instanceof M2DPacketDisconnect) {
-			M2DPacketDisconnect disconnect = (M2DPacketDisconnect) M2DPacket.packets[m2dp.getDataId()];
-			String name = disconnect.getParcel().username;
-			System.out.println("User \"" + name + "\" disconnected");
-			gameServer.disconnectPlayerByName(name);
-			M2DPacket.disconnectReply.send(gameServer.getSocket(), ip, port);
-		}
+
 		if (packet instanceof M2DPacketUpdatePlayer) {
-			System.out.println("Got packet update player from client");
+			// System.out.println("Got packet update player from client");
 			M2DPacketUpdatePlayer updatePlayer = (M2DPacketUpdatePlayer) packet;
 			String username = updatePlayer.getParcel().username;
+			if (username == null)
+				return;
 
 			PlayerOnline player = gameServer.getPlayerByName(username);
-
+			if (player == null) {
+				return;
+			}
 			int x = updatePlayer.getParcel().x;
 			int y = updatePlayer.getParcel().y;
 			int rowIndex = updatePlayer.getParcel().rowIndex;
 			int columnIndex = updatePlayer.getParcel().columnIndex;
 			int directionMovement = updatePlayer.getParcel().directionMovement;
 			int currentFrame = updatePlayer.getParcel().currentFrame;
-			
-			System.out.println("Got update player: (" + x + ", " + y + ") with sprite RI " + rowIndex + ", CI " + columnIndex + ", DIRMOV " +
-			directionMovement + ", CURFRAME " + currentFrame);
 
-			if (player != null) {
-				player.x = x;
-				player.y = y;
-				player.getSprite().setRowIndex(rowIndex);
-				player.getSprite().setColumnIndex(columnIndex);
-				player.getSprite().setDirectionMovement(directionMovement);
-				player.getSprite().setCurrentFrame(currentFrame);
-			} else {
-				player = new PlayerOnline(username, ip, port);
-				player.x = x;
-				player.y = y;
-				player.getSprite().setRowIndex(rowIndex);
-				player.getSprite().setColumnIndex(columnIndex);
-				player.getSprite().setDirectionMovement(directionMovement);
-				player.getSprite().setCurrentFrame(currentFrame);
-			}
-			broadcastPlayerUpdate(msg, ip, port);
+			// System.out.println("Got update player: (" + x + ", " + y + ")
+			// with sprite RI " + rowIndex + ", CI "
+			// + columnIndex + ", DIRMOV " + directionMovement + ", CURFRAME " +
+			// currentFrame);
+
+			player.x = x;
+			player.y = y;
+			player.getSprite().setRowIndex(rowIndex);
+			player.getSprite().setColumnIndex(columnIndex);
+			player.getSprite().setDirectionMovement(directionMovement);
+			player.getSprite().setCurrentFrame(currentFrame);
+			// PlayerOnline newPlayer = new PlayerOnline(username, ip, port);
+			// newPlayer.x = x;
+			// newPlayer.y = y;
+			// newPlayer.getSprite().setRowIndex(rowIndex);
+			// newPlayer.getSprite().setColumnIndex(columnIndex);
+			// newPlayer.getSprite().setDirectionMovement(directionMovement);
+			// newPlayer.getSprite().setCurrentFrame(currentFrame);
+			// newPlayer.setConnected(true);
+			// gameServer.addPlayer(newPlayer);
 		}
+		broadcastPlayerUpdate(msg, ip, port);
 	}
 
+	public void broadcastPlayerUpdate(String msg, InetAddress ip, int port) {
+		List<PlayerOnline> players = gameServer.getPlayers();
+		// System.out.println("Number of players online: " + players.size());
+		// System.out.println("Broadcasting player update to clients");
+		for (int i = 0; i < players.size(); ++i) {
+			if (players.get(i).getAddress().equals(ip) && players.get(i).getPort() == port)
+				continue;
+			// byte[] buf = msg.getBytes();
+			// packet = new DatagramPacket(buf, buf.length,
+			// players.get(i).getAddress(), players.get(i).getPort());
+			// System.out.println("Sending packet: \"" + msg + "\", " +
+			// players.get(i).getAddress().toString() + ", " +
+			// players.get(i).getPort());
+			// gameServer.getSocket().send(packet);
+			M2DPacket.updatePlayer.send(gameServer.getSocket(), ip, port, players.get(i));
+		}
+	}
 }

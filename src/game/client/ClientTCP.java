@@ -8,6 +8,9 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import engine.world.entity.PlayerOnline;
+import game.network.M2DProtocol;
+import game.server.GameServer;
 import game.server.ServerTCP;
 
 /**
@@ -20,17 +23,22 @@ public class ClientTCP {
 	
 	private Socket connection;
 	private int port = ServerTCP.PORT;
-	private String hostname = "bejobo.servegame.com";
+	private String hostname = "localhost";
 	private BufferedReader reader;
 	private PrintWriter writer;
+	private ClientListenerThreadTCP threadedListener;
 	private ClientListenerTCP listener;
+	private GameClient gameClient;
 	
-	public ClientTCP() {
+	public ClientTCP(GameClient gameClient) {
+		this.gameClient = gameClient;
 		try {
 			connection = new Socket(hostname, port);
 			reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			writer = new PrintWriter(new OutputStreamWriter(connection.getOutputStream()));
-			listener = new ClientListenerTCP(connection);
+			listener = new ClientListenerTCP(connection, gameClient);
+			threadedListener = new ClientListenerThreadTCP(connection, gameClient);
+			
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -38,38 +46,46 @@ public class ClientTCP {
 		}
 	}
 	
-	public void start() {
-		listener.start();
-		int testTicks = 0;
-		long startTime = System.currentTimeMillis();
-		while(!connection.isClosed()) {
-			if(testTicks > 3) {
-				try {
-					listener.stop(); //Stop the listener before closing the connection
-					Thread.sleep(5000);
-					connection.close();
-				} catch (IOException | InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			
-			if(System.currentTimeMillis() - startTime > 2000) {
-				writer.println("Test message from a client");
-				writer.flush();
-				startTime = System.currentTimeMillis();
-				++testTicks;
-			}
-			
-			try {
-				Thread.sleep(2);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+	public void sendJoin() {
+		String data = gameClient.getPlayer().getUsername();
+		String dataLength = GameServer.formatLength(data.length());
+		writer.println(M2DProtocol.M2DP_DATA_JOIN + dataLength + data);
+		writer.flush();
+		
+		System.out.println("Sending join from TCP client");
 	}
 	
-	public static void main(String[] args) {
-		ClientTCP client = new ClientTCP();
-		client.start();
+	public void sendDisconnect() {
+		String data = gameClient.getPlayer().getUsername();
+		String dataLength = GameServer.formatLength(data.length());
+		writer.println(M2DProtocol.M2DP_DATA_DISCONNECT + dataLength + data);
+		writer.flush();
+	}
+	
+	public void listen() {
+		listener.start();
+	}
+	
+	public void start() {
+		threadedListener.start();
+//		int testTicks = 0;
+//		long startTime = System.currentTimeMillis();
+//		while(!connection.isClosed()) {
+//			if(testTicks > 3) {
+//				try {
+//					listener.stop(); //Stop the listener before closing the connection
+//					Thread.sleep(5000);
+//					connection.close();
+//				} catch (IOException | InterruptedException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//			
+//			try {
+//				Thread.sleep(2);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//		}
 	}
 }

@@ -15,7 +15,7 @@ public class ServerTickerTCP implements Runnable {
 	
 	public void broadcastMessage(String msg) {
 		for(ClientConnectionTCP connection : server.getConnections()) {
-			connection.sendMessage("< ServerTicker's Broadcaster! >");
+			//connection.sendMessage("< ServerTicker's Broadcaster! >");
 		}
 	}
 

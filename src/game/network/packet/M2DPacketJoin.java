@@ -28,7 +28,7 @@ public class M2DPacketJoin extends M2DPacket {
 			String dataLength = GameServer.formatLength(data.length());
 			String msg = (M2DProtocol.M2DP_DATA_JOIN + dataLength + data);
 			byte[] buf = msg.getBytes();
-			packet = new DatagramPacket(buf, buf.length, InetAddress.getByName("bejobo.servegame.com"), port);
+			packet = new DatagramPacket(buf, buf.length, dst, port);
 			socket.send(packet);
 		} catch (IOException e) {
 			e.printStackTrace();

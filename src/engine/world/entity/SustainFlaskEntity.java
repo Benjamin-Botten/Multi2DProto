@@ -1,6 +1,7 @@
 package engine.world.entity;
 
 import engine.world.item.Item;
+import game.Game;
 
 public class SustainFlaskEntity extends ItemEntity {
 
@@ -16,5 +17,9 @@ public class SustainFlaskEntity extends ItemEntity {
 	
 	public int getItemId() {
 		return item.id;
+	}
+	
+	public String toString() {
+		return item.toString() + " : dimensions " + w + ", " + h;
 	}
 }

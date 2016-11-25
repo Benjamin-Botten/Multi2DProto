@@ -23,7 +23,7 @@ public class M2DPacketJoinReply extends M2DPacket {
 //			String dataLength = GameServer.formatLength(data.length());
 			String msg = (data);
 			byte[] buf = msg.getBytes();
-			packet = new DatagramPacket(buf, buf.length, InetAddress.getByName("bejobo.servegame.com"), port);
+			packet = new DatagramPacket(buf, buf.length, dst, port);
 			socket.send(packet);
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -4,6 +4,7 @@ import engine.visuals.Sprite;
 import engine.visuals.viewport.Viewport;
 import engine.world.World;
 import engine.world.item.Item;
+import game.Game;
 
 public class Entity {
 	
@@ -19,13 +20,18 @@ public class Entity {
 	public float x, y;
 	public float velX = 0, velY = 0;
 	public float maxSpeed = 3, speed = maxSpeed;
-	protected int w, h;
+	public int w = 16 * Game.SCALE;
+	public int h = 16 * Game.SCALE;
 	protected int ticks = 0;
 	protected Sprite sprite;
 	protected int directionMovement, directionFacing;
 	protected boolean collidable;
 	protected Entity target;
+	protected boolean hasTarget = false;
 	protected Inventory inventory = new Inventory();
+	protected Item weapon;
+	protected boolean attacking = false;
+	protected boolean shouldRemove = false;
 	
 	//Stats
 	protected int maxLife = 1000, life = maxLife;
@@ -44,6 +50,9 @@ public class Entity {
 		}
 	}
 	
+	public void handle(World world) {
+	}
+	
 	public void move() {
 	}
 	
@@ -60,6 +69,8 @@ public class Entity {
 	
 	public void render(Viewport viewport) {
 		viewport.render(this);
+		//Debugging purposes
+//		viewport.renderBounds((int) x, (int) y, w, h);
 	}
 	
 	public void setSprite(Sprite sprite) {
@@ -127,5 +138,29 @@ public class Entity {
 	
 	public float getCenterY() {
 		return y + (h >> 1);
+	}
+	
+	public boolean colliding(Entity entity) {
+		if(x > entity.x + entity.w) return false;
+		if(x + (w >> 1) < entity.x) return false;
+		if(y > entity.y + entity.h) return false;
+		if(y + (h >> 1) < entity.y) return false;
+		return true;
+	}
+	
+	public boolean colliding(int xp, int yp, int ew, int eh) {
+		if(x > xp + ew) return false;
+		if(x + (w >> 1) < xp) return false;
+		if(y > yp + eh) return false;
+		if(y + (h >> 1) < yp) return false;
+		return true;
+	}
+	
+	public boolean canRemove() {
+		return shouldRemove;
+	}
+	
+	public boolean dead() {
+		return life <= 0;
 	}
 }
