@@ -3,6 +3,11 @@ package game.network;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 
+/**
+ * This is a protocol/network communication description for the game client & server on top of TCP/UDP
+ * @author robot
+ *
+ */
 public class M2DProtocol {
 
 	// String representations of the data/msg broadcasts
@@ -19,20 +24,24 @@ public class M2DProtocol {
 	public static final String M2DP_DATA_JOIN = "0001";
 	public static final String M2DP_DATA_DISCONNECT = "0002";
 	public static final String M2DP_DATA_UPDATE_PLAYER = "0003";
-
+	public static final String M2DP_DATA_UPDATE_ATTACK_ENTITY = "0006";
+	public static final String M2DP_DATA_UPDATE_ENTITY = "0007";
+	
 	// M2D-protocol data/msg identifiers
 	public static final int M2DP_JOIN = 1;
 	public static final int M2DP_DISCONNECT = 2;
 	public static final int M2DP_UPDATE_PLAYER = 3;
 	public static final int M2DP_JOIN_REPLY = 4;
 	public static final int M2DP_DISCONNECT_REPLY = 5;
+	public static final int M2DP_UPDATE_ATTACK_ENTITY = 6;
+	public static final int M2DP_UPDATE_ENTITY = 7;
 
-	// Protocol message-indexes for message-content (i.e. where the data-id
+	// Protocol message-indices for message-content (i.e. where the data-id
 	// starts and ends in the message, and such)
 	public static final int M2DP_DATA_ID_POS_START = 0;
 	public static final int M2DP_DATA_ID_POS_END = 4; // 4 bytes
-	public static final int M2DP_DATA_MSG_LENGTH_POS_START = 4;
-	public static final int M2DP_DATA_MSG_LENGTH_POS_END = 6;
+	public static final int M2DP_DATA_MSG_LENGTH_POS_START = M2DP_DATA_ID_POS_END;
+	public static final int M2DP_DATA_MSG_LENGTH_POS_END = M2DP_DATA_MSG_LENGTH_POS_START + 2;
 
 	private int dataId;
 	private int dataLength;

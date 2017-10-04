@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import engine.world.entity.Player;
 import engine.world.entity.PlayerOnline;
 import game.network.M2DProtocol;
 import game.network.packet.M2DPacket;
@@ -70,6 +71,7 @@ public class ClientConnectionTCP implements Runnable {
 
 			try {
 				String line = "";
+				
 				line = reader.readLine();
 				if (line == null)
 					break;
@@ -78,11 +80,16 @@ public class ClientConnectionTCP implements Runnable {
 				if (line.contains(M2DProtocol.M2DP_DATA_JOIN)) {
 					System.out.println("Message from client asked to join, sending response");
 					M2DProtocol m2dp = M2DProtocol.parseTCP(line, connection.getInetAddress(), connection.getPort());
-					gameServer.addPlayer(new PlayerOnline(m2dp.getData(), connection.getInetAddress(), connection.getPort()));
-					sendMessage(M2DProtocol.M2DP_REPLY_JOIN_ACCEPT);
+					Player plr = new Player(m2dp.getData(), connection.getInetAddress(), connection.getPort());
+					plr.setNetId(gameServer.netIdPool.allocatePlayer(plr));
+					gameServer.addPlayer(plr);
+					sendMessage(M2DProtocol.M2DP_REPLY_JOIN_ACCEPT + "," + plr.getNetId());
 				}
 				if (line.contains(M2DProtocol.M2DP_DATA_DISCONNECT)) {
 					M2DProtocol m2dp = M2DProtocol.parseTCP(line, connection.getInetAddress(), connection.getPort());
+					String username = m2dp.getData();
+					System.out.println("Disconnecting player '" + username + "' with netId " + gameServer.getPlayerByName(username).getNetId());
+					gameServer.netIdPool.deallocatePlayer(gameServer.getPlayerByName(username));
 					gameServer.disconnectPlayerByName(m2dp.getData());
 					sendMessage(M2DProtocol.M2DP_REPLY_DISCONNECT_ACCEPT);
 					connection.close();

@@ -7,12 +7,24 @@ import game.Game;
 
 public class ItemEntity extends Entity {
 	
-	public int w = 8 * Game.SCALE, h = 8 * Game.SCALE;
 	protected Item item;
+	protected int pickupRadius;
 	
 	public ItemEntity(float x, float y) {
-		this.x = x;
-		this.y = y;
+		if(x < 0) {
+			this.x = 0;
+		}else {
+			this.x = x;
+		}
+		
+		if(y < 0) {
+			this.y = 0;
+		} else {
+			this.y = y;
+		}
+		
+		w = 8 * Game.SCALE;
+		h = 8 * Game.SCALE;
 	}
 	
 	public void interact(Entity entity) {
@@ -22,7 +34,7 @@ public class ItemEntity extends Entity {
 	}
 	
 	public int getItemId() {
-		return item.id;
+		return item.getId();
 	}
 	
 	public Item getItem() {
@@ -36,6 +48,6 @@ public class ItemEntity extends Entity {
 	public void render(Viewport viewport) {
 		viewport.renderItemEntity(this, ticks, 0.03125f);
 		//Debugging purposes
-//		viewport.renderBounds((int) x, (int) y, w, h);
+		viewport.renderBounds(this);
 	}
 }

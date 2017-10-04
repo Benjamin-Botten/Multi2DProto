@@ -4,13 +4,14 @@ import engine.world.World;
 import engine.world.entity.Entity;
 import engine.world.entity.ItemEntity;
 import engine.world.item.Item;
+import engine.world.item.WoodenBow;
 
 public class WoodenBowEntity extends ItemEntity {
 
 	public WoodenBowEntity(float x, float y) {
 		super(x, y);
 		
-		item = Item.woodenbow;
+		item = new WoodenBow();
 	}
 	
 	@Override
@@ -20,10 +21,12 @@ public class WoodenBowEntity extends ItemEntity {
 	@Override
 	public void interact(World world, Entity entity) {
 		entity.addItem(item);
-		world.removeEntity(this);
+		
+		shouldRemove = true;
+//		world.removeEntity(this);
 	}
 	
 	public int getItemId() {
-		return item.id;
+		return item.getId();
 	}
 }

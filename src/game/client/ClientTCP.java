@@ -47,6 +47,10 @@ public class ClientTCP {
 	}
 	
 	public void sendJoin() {
+		if(writer == null) {
+			System.out.println("Attempting to send join without a connection (null-writer)");
+			return;
+		}
 		String data = gameClient.getPlayer().getUsername();
 		String dataLength = GameServer.formatLength(data.length());
 		writer.println(M2DProtocol.M2DP_DATA_JOIN + dataLength + data);

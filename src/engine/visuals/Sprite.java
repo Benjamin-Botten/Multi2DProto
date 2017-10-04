@@ -2,12 +2,17 @@ package engine.visuals;
 
 import engine.visuals.viewport.Viewport;
 
+/**
+ * TODO: Add constants to enumerate sprite locations, e.g. ID_ROW_ENTITY_NEO_RUNNING, etc
+ * 
+ * @author robot
+ *
+ */
 public class Sprite {
 	
-	public static final int MAX_FRAMES_ANIMATION = 8;
-	public final int MAX_ROW_INDEX;
+	public static final int MAX_FRAMES_ANIMATION = 2;
 	
-	private boolean isAnimated = true;
+	private final boolean animated;
 	
 	/**
 	 * Based on the logical update rate of the server (tick rate)
@@ -25,12 +30,20 @@ public class Sprite {
 	
 	private SpriteSheet spriteSheet;
 
-	public Sprite(SpriteSheet spriteSheet, int rowIndex, int numFrames, int directionMovement, int directionFacing) {
+	public Sprite(SpriteSheet spriteSheet, int rowIndex, int columnIndex, boolean animated) {
 		this.spriteSheet = spriteSheet;
-		this.numFrames = numFrames;
+		this.rowIndex = rowIndex;
+		this.numFrames = MAX_FRAMES_ANIMATION;
+		this.animated = animated;
+	}
+	
+	public Sprite(SpriteSheet spriteSheet, int rowIndex, int columnIndex, int directionMovement, int directionFacing, boolean animated) {
+		this.spriteSheet = spriteSheet;
+		this.rowIndex = rowIndex;
+		this.numFrames = MAX_FRAMES_ANIMATION;
 		this.directionMovement = directionMovement;
 		this.directionFacing = directionFacing;
-		MAX_ROW_INDEX = spriteSheet.h / 16;
+		this.animated = animated;
 	}
 	
 	public void render(Viewport viewport, int x, int y) {
@@ -38,9 +51,9 @@ public class Sprite {
 	}
 	
 	public void tick() {
-		if(isAnimated) {
+		if(animated) {
 			if(ticks % rtt == 0) {
-				currentFrame++;
+				currentFrame++; 
 				if(currentFrame >= numFrames) {
 					currentFrame = 0;
 				}
@@ -89,10 +102,6 @@ public class Sprite {
 		this.rtt = rtt;
 	}
 	
-	public void setAnimated(boolean animated) {
-		this.isAnimated = animated;
-	}
-	
 	public int getDirectionMovement() {
 		return directionMovement;
 	}
@@ -109,19 +118,44 @@ public class Sprite {
 		return spriteSheet;
 	}
 	
+	/**
+	 * Column / x-position in spritesheet changes the animation of the current direction the sprite is facing by adding the current frame of animation
+	 * @return the current column index in the animation of the sprite
+	 */
 	public int getCurrentColumnIndex() {
 		return columnIndex + currentFrame;
 	}
 	
+	
+	/**
+	 * Row / y-position in spritesheet changes the current direction the sprite is facing by adding the facing direction to the row index of the current sprite
+	 * @return the current row index in the animation of the sprite
+	 */
 	public int getCurrentRowIndex() {
 		return rowIndex + directionFacing;
 	}
 	
+	/**
+	 * Get initial column index
+	 * @return int, representing the initial column index
+	 */
 	public int getColumnIndex() {
 		return columnIndex;
 	}
 	
+	/**
+	 * Get initial row index
+	 * @return int, representing the initial row index
+	 */
 	public int getRowIndex() {
 		return rowIndex;
+	}
+	
+	/**
+	 * Get animation state of this sprite
+	 * @return boolean, based on the sprite being animated or not
+	 */
+	public boolean getAnimated() {
+		return animated;
 	}
 }

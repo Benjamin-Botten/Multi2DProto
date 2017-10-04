@@ -2,13 +2,14 @@ package engine.world.entity;
 
 import engine.world.World;
 import engine.world.item.Item;
+import engine.world.item.SteelArrow;
 
 public class SteelArrowEntity extends ItemEntity {
 
 	public SteelArrowEntity(float x, float y) {
 		super(x, y);
 		
-		item = Item.steelarrow;
+		item = new SteelArrow();
 	}
 	
 	@Override
@@ -18,10 +19,11 @@ public class SteelArrowEntity extends ItemEntity {
 	@Override
 	public void interact(World world, Entity entity) {
 		entity.addItem(item);
-		world.removeEntity(this);
+		
+		shouldRemove = true;
 	}
 	
 	public int getItemId() {
-		return item.id;
+		return item.getId();
 	}
 }

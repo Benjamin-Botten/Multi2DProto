@@ -1,5 +1,12 @@
 package engine.visuals.viewport;
 
+/**
+ * Simple 2D-camera class to maintain position
+ * NOTE: In the future it might be interesting to add more attributes to the camera,
+ * and maybe even have a processor-interface for activating visual/post-processing effects on the "lens"
+ * @author robot
+ *
+ */
 public class Camera {
 	
 	private int x, y;

@@ -42,12 +42,15 @@ public class ClientListenerTCP {
 					System.out.println("Received from Server (In ClientListener thread) > " + line);
 					
 					if(line.contains(M2DProtocol.M2DP_REPLY_JOIN_ACCEPT)) {
-						System.out.println("Client> Received join accept reply from Server");
+						int netId = Integer.parseInt(line.substring(5, line.length()));
+						System.out.println("Client> Received join accept reply from Server with Net ID '" + netId + "'");
 						gameClient.getPlayer().setConnected(true);
+						gameClient.getPlayer().setNetId(netId);
 						break;
 					}
 					if(line.contains(M2DProtocol.M2DP_REPLY_DISCONNECT_ACCEPT)) {
 						System.out.println("Client> Received disconnect accept reply from Server");
+						gameClient.getPlayer().setNetId(0);
 						gameClient.getPlayer().setConnected(false);
 						break;
 					}
