@@ -1,6 +1,6 @@
 # Multi2DProto
 
-Prototyping/side-project to learn more first-hand about networking algorithms, protocol-creation, thread tailoring, game design and fun, graphics/game- design and interactivity.
+Prototyping/side-project to learn more first-hand about networking algorithms, protocol-creation, thread tailoring, game design, fun, graphics and interactivity
 
 
 
