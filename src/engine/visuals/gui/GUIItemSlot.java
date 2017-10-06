@@ -14,8 +14,8 @@ import game.Game;
  *
  */
 public class GUIItemSlot extends GUIElement {
-	public static final int COLOR_TEXT_HOVER = 0xffffff00;
-	public static final int COLOR_BACKGROUND_HOVER = 0xcc777777;
+	public static final int COLOR_TEXT_HOVER = 0xccffff00;
+	public static final int COLOR_BACKGROUND_HOVER = 0x11777777;
 	
 	public static final int WIDTH = 8 * Game.SCALE;
 	public static final int HEIGHT = 8 * Game.SCALE;

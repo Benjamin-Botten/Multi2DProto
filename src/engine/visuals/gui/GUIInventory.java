@@ -18,7 +18,7 @@ public class GUIInventory extends GUIElement {
 	public static final int ID_SELECTION_NONE = -1;
 	public static final int ID_SELECTION_OUTSIDE_INVENTORY = -2;
 	
-	public static final int COLOR_BACKGROUND = 0xdd00ffff;
+	public static final int COLOR_BACKGROUND = 0x1100ff00;
 	public static final int WIDTH_ITEMS = 4;
 	public static final int HEIGHT_ITEMS = 4;
 	
