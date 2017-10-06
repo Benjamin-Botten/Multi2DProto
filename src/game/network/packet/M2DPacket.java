@@ -10,6 +10,8 @@ import game.network.M2DProtocol;
 import game.network.parcel.M2DParcel;
 import game.network.parcel.M2DParcelDisconnect;
 import game.network.parcel.M2DParcelJoin;
+import game.network.parcel.M2DParcelUpdateAttackEntity;
+import game.network.parcel.M2DParcelUpdateEntity;
 import game.network.parcel.M2DParcelUpdatePlayer;
 
 public class M2DPacket {
@@ -29,6 +31,8 @@ public class M2DPacket {
 	public static final M2DPacketUpdatePlayer updatePlayer = new M2DPacketUpdatePlayer(M2DProtocol.M2DP_UPDATE_PLAYER, new M2DParcelUpdatePlayer());
 	public static final M2DPacketJoinReply joinReply = new M2DPacketJoinReply(M2DProtocol.M2DP_JOIN_REPLY);
 	public static final M2DPacketDisconnectReply disconnectReply = new M2DPacketDisconnectReply(M2DProtocol.M2DP_DISCONNECT_REPLY, new M2DParcelDisconnect());
+	public static final M2DPacketUpdateAttackEntity updateAttackEntity = new M2DPacketUpdateAttackEntity(M2DProtocol.M2DP_UPDATE_ATTACK_ENTITY, new M2DParcelUpdateAttackEntity());
+	public static final M2DPacketUpdateEntity updateEntity = new M2DPacketUpdateEntity(M2DProtocol.M2DP_UPDATE_ENTITY, new M2DParcelUpdateEntity());
 	
 	public M2DPacket(int id) {
 		if(packets[id] != null) {

@@ -4,26 +4,26 @@ import engine.world.entity.Entity;
 import engine.world.entity.Player;
 
 public class Item {
-
-	public final int id;
-	public final String name;
-	public final String description;
 	
-	public static final Item[] items = new Item[256];
+	//Flasks, Potions & Other Consumables
+	public static final int ID_ITEM_NONE = 0;
+	public static final int ID_ITEM_FLASK_LIFE = 1;
+	public static final int ID_ITEM_FLASK_NOA = 2;
+	public static final int ID_ITEM_FLASK_SPIRIT = 3;
+	public static final int ID_ITEM_FLASK_POWER = 4;
 	
-	public static final LifeFlask lifeflask = new LifeFlask(0, "Life Flask", "Fills Life");
-	public static final SustainFlask sustainflask = new SustainFlask(1, "Sustain Flask", "Sustains You");
-	public static final SteelArrow steelarrow = new SteelArrow(4, "Sustain Flask", "Sustains You");
-	public static final WoodenBow woodenbow = new WoodenBow(5, "Sustain Flask", "Sustains You");
+	//Arrows & Bows
+	public static final int ID_ITEM_ARROW_STEEL = 5;
+	public static final int ID_ITEM_BOW_WOOD = 6;
 	
-	public Item(int id, String name, String description) {
-		if(items[id] != null) throw new IllegalArgumentException("Duplicate id for different items");
-		
-		this.id = id;
-		this.name = name;
-		this.description = description;
-		
-		items[id] = this;
+	protected int id;
+	protected String name;
+	protected String description;
+	
+	public Item() {
+		id = ID_ITEM_NONE;
+		name = "";
+		description = "";
 	}
 	
 	/**
@@ -39,7 +39,18 @@ public class Item {
 	public void useOn(Entity entity) {
 	}
 	
+	/**
+	 * @return String containing the name of the item (case-intact)
+	 */
 	public String toString() {
 		return name;
+	}
+	
+	public int getId() {
+		return id;
+	}
+	
+	public String getDescription() {
+		return description;
 	}
 }

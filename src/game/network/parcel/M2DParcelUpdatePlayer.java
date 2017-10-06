@@ -2,7 +2,7 @@ package game.network.parcel;
 
 import game.network.M2DProtocol;
 
-public class M2DParcelUpdatePlayer extends M2DParcel{
+public class M2DParcelUpdatePlayer extends M2DParcel {
 	
 	//Username
 	public String username;
@@ -12,7 +12,20 @@ public class M2DParcelUpdatePlayer extends M2DParcel{
 	
 	//Sprite data
 	public int rowIndex, columnIndex;
-	public int directionMovement, currentFrame;
+	public int directionMovement, directionFacing, currentFrame;
+	
+	//Action-data (such as attacks, interaction animations, etc)
+	public int actionId;
+	public int actionProgress;
+	
+	//Target entity net-ID
+	public int targetNetId;
+	
+	//Player's Network ID
+	public int netId;
+	
+	//Entity attributes
+	public int life;
 	
 	public void fill(M2DProtocol m2dp) {
 		String data = m2dp.getData();
@@ -52,15 +65,46 @@ public class M2DParcelUpdatePlayer extends M2DParcel{
 				}
 			} else if (tokens == 5) {
 				if (Character.compare(data.charAt(i), ',') == 0) {
-					directionMovement = Integer.parseInt(data.substring(lastTokenIndex, i));
+					directionFacing = Integer.parseInt(data.substring(lastTokenIndex, i));
 					lastTokenIndex = i + 1;
 					tokens++;
 				}
 			} else if (tokens == 6) {
-				currentFrame = Integer.parseInt(data.substring(lastTokenIndex, data.length()));
+				if(Character.compare(data.charAt(i), ',') == 0) {
+					currentFrame = Integer.parseInt(data.substring(lastTokenIndex, i));
+					lastTokenIndex = i + 1;
+					tokens++;
+				}
+			} else if (tokens == 7) {
+				if(Character.compare(data.charAt(i), ',') == 0) {
+					actionId = Integer.parseInt(data.substring(lastTokenIndex, i));
+					lastTokenIndex = i + 1;
+					tokens++;
+				}
+			} else if (tokens == 8) {
+				if(Character.compare(data.charAt(i), ',') == 0) {
+					actionProgress = Integer.parseInt(data.substring(lastTokenIndex, i));
+					lastTokenIndex = i + 1;
+					tokens++;
+				}
+			} else if (tokens == 9) {
+				if(Character.compare(data.charAt(i), ',') == 0) {
+					targetNetId = Integer.parseInt(data.substring(lastTokenIndex, i));
+					lastTokenIndex = i + 1;
+					tokens++;
+				}
+			}  else if (tokens == 10) {
+				if(Character.compare(data.charAt(i), ',') == 0) {
+					netId = Integer.parseInt(data.substring(lastTokenIndex, i));
+					lastTokenIndex = i + 1;
+					tokens++;
+				}
+			} else if (tokens == 11) {
+				life = Integer.parseInt(data.substring(lastTokenIndex, data.length()));
 				tokens++;
 				break;
 			}
+			
 		}
 	}
 }

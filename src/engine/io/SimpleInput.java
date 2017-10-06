@@ -5,8 +5,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
-public class SimpleInput extends Input implements MouseListener, KeyListener {
+public class SimpleInput extends Input implements MouseListener, KeyListener, MouseMotionListener {
 	
 	public SimpleInput(Canvas canvas) {
 		super(canvas);
@@ -14,18 +15,20 @@ public class SimpleInput extends Input implements MouseListener, KeyListener {
 	
 	@Override
 	public void keyTyped(KeyEvent e) {
-		
+		typedChar = Character.toString(e.getKeyChar());
 	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
 		keys[e.getKeyCode()] = true;
-		//System.out.println("Pressing key: " + e.getKeyCode());
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
 		keys[e.getKeyCode()] = false;
+		
+		//Reset the typed char so you can't poll "ghost chars" from the input
+		typedChar = "";
 	}
 
 	@Override
@@ -44,7 +47,10 @@ public class SimpleInput extends Input implements MouseListener, KeyListener {
 		else if(button == MouseEvent.BUTTON3) {
 			mr = true;
 		}
-		System.out.println("Mouse Pressed @(" + mx + ", " + my + ")");
+//		System.out.println("Mouse Pressed @(" + mx + ", " + my + ")");
+		
+		mxDrag = mx;
+		myDrag = my;
 	}
 
 	@Override
@@ -58,7 +64,10 @@ public class SimpleInput extends Input implements MouseListener, KeyListener {
 		else if(button == MouseEvent.BUTTON3) {
 			mr = false;
 		}
-		System.out.println("Mouse Released @(" + mx + ", " + my + ")");
+//		System.out.println("Mouse Released @(" + mx + ", " + my + ")");
+		
+		mxDrag = mx;
+		myDrag = my;
 	}
 
 	@Override
@@ -69,6 +78,18 @@ public class SimpleInput extends Input implements MouseListener, KeyListener {
 	@Override
 	public void mouseExited(MouseEvent e) {
 		
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		mxDrag = e.getX();
+		myDrag = e.getY();
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		mx = e.getX();
+		my = e.getY();
 	}
 	
 }

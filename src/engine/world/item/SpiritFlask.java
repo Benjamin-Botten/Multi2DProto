@@ -1,9 +1,9 @@
 package engine.world.item;
 
-public class SustainFlask extends Item {
-
-	public SustainFlask(int id, String name, String description) {
-		super(id, name, description);
-	}
+public class SpiritFlask extends ConsumableItem {
 	
+	public SpiritFlask() {
+		id = ID_ITEM_FLASK_SPIRIT;
+		name = "Spirit Flask";
+	}
 }
