@@ -3,6 +3,11 @@
 Prototyping/side-project to learn more first-hand about networking algorithms, protocol-creation, thread tailoring, game design, fun, graphics and interactivity
 
 
+**BUILD:** 
+--------------------------------------------
+- You will need to set build path to a JDK version >= 1.8.0_112
+- You will also need the json-simple-1.1.1 JAR in the build path
+-------------------------------------------------
 
 **NOTE:** The current source may not be (is extremely likely, **NOT**) perfectly up to date!
 
