@@ -2,7 +2,7 @@ package engine.world.entity;
 
 import java.net.InetAddress;
 
-import com.sun.glass.events.KeyEvent;
+import java.awt.event.KeyEvent;
 
 import engine.io.Input;
 import engine.util.Direction;
@@ -13,9 +13,7 @@ import engine.visuals.viewport.Camera;
 import engine.visuals.viewport.Viewport;
 import engine.world.World;
 import engine.world.entity.action.Action;
-import engine.world.entity.action.ActionQueue;
 import engine.world.entity.playerclass.PlayerClass;
-import engine.world.item.Item;
 import engine.world.item.LifeFlask;
 import game.Game;
 
@@ -79,6 +77,8 @@ public class Player extends Entity {
 			return;
 		}
 		
+		//Target validation
+		//TODO: Refactor
 		if(target != null) {
 			if(target.dead()) {
 				target = null;
@@ -94,10 +94,14 @@ public class Player extends Entity {
 			heal(25);
 		}
 		
+		//Update the sprite
 		sprite.tick();
 
+		//Adjust camera to player movement
 		setCamera((int) x - Game.HALF_WIDTH, (int) y - Game.HALF_HEIGHT);
 
+		//Update actions
+		//TODO: Refactor
 		if (actionProgress >= 100) {
 			actionProgress = 0;
 			currentAction = Action.noAction;

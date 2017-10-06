@@ -23,8 +23,8 @@ public class SpriteSheet {
 	public static final SpriteSheet gui = loadSpriteSheet("/resrc/art/guisprites.png", 8, 8);
 	public static final SpriteSheet itementities = loadSpriteSheet("/resrc/art/itementitysprites.png", 8, 8);
 //	public static final SpriteSheet arrow = renderSpriteRotationsToFile(SpriteSheet.itementities, 6, "C:/Users/robot/experiments/Multi2DProto/src/resrc/art/arrow.png");
-	public static final SpriteSheet frostbite = renderSpriteRotationsToFile(SpriteSheet.itementities, 8, "C:/Users/robot/experiments/Multi2DProto/src/resrc/art/frostbite.png");
-	public static final SpriteSheet smoothLightMap3x3 = renderLightMap("C:/Users/robot/experiments/Multi2DProto/src/resrc/art/lightmap4x4.png", 3, 16);
+	public static final SpriteSheet frostbite = renderSpriteRotationsToFile(SpriteSheet.itementities, 8, "src/resrc/art/frostbite.png");
+	public static final SpriteSheet smoothLightMap3x3 = renderLightMap("src/resrc/art/lightmap4x4.png", 3, 16);
 	
 	public final int w, h;
 	public final int[] pixels;
