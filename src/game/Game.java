@@ -1,21 +1,10 @@
 package game;
 
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.Random;
-
-import com.sun.glass.events.KeyEvent;
-
-import engine.io.Input;
-import engine.io.SimpleInput;
 import engine.visuals.viewport.Camera;
 import engine.visuals.viewport.Viewport;
 import engine.world.World;
 import engine.world.entity.Player;
 import engine.world.entity.PlayerOnline;
-import game.client.GameClient;
-import game.gamestate.GameState;
-import game.gamestate.Lobby;
 
 public class Game {
 	public static final int DEFAULT_CLIENT_TICKS = 32;
@@ -28,20 +17,15 @@ public class Game {
 	
 	public static final String TITLE = "Experiment";
 	public static final String HOSTNAME = "localhost";
-	private boolean running = false;
 	private int ticks = 0;
 	
 //	private Viewport viewport;
 //	private Input input;
 	private Player player;
-	private Camera camera;
 	private World world;
 	private String name;
 	
 	public Game(Player player) {
-		camera = new Camera();
-//		viewport = new Viewport(WIDTH, HEIGHT, SCALE, TITLE, camera);
-//		input = new SimpleInput(viewport);
 		this.player = player;
 		world = new World(player);
 		
